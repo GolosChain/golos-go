@@ -11,10 +11,10 @@ import (
 	"github.com/pkg/errors"
 
 	// RPC
-	"github.com/asuleymanov/golos-go/encoding/wif"
-	"github.com/asuleymanov/golos-go/transactions"
-	"github.com/asuleymanov/golos-go/translit"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/encoding/wif"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/translit"
+	"github.com/GolosChain/golos-go/types"
 )
 
 func (api *Client) Vote(user_name, author_name, permlink string, weight int) error {

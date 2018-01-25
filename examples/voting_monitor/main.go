@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/asuleymanov/golos-go/client"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/client"
+	"github.com/GolosChain/golos-go/types"
 )
 
 var cls = client.NewApi()

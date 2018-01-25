@@ -3,10 +3,10 @@ package client
 import (
 	"log"
 
-	"github.com/asuleymanov/golos-go"
-	"github.com/asuleymanov/golos-go/transactions"
-	"github.com/asuleymanov/golos-go/transports/websocket"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/transports/websocket"
+	"github.com/GolosChain/golos-go/types"
 )
 
 const fdt = `"20060102t150405"`
