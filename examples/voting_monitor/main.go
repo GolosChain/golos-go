@@ -8,7 +8,7 @@ import (
 	"github.com/GolosChain/golos-go/types"
 )
 
-var cls = client.NewApi()
+var cls = client.NewApi([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
 
 func main() {
 	defer cls.Rpc.Close()
