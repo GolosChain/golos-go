@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 
 	// RPC
-	"github.com/asuleymanov/golos/types"
+	"github.com/GolosChain/golos-go/types"
 
 	// Vendor
 	"github.com/pkg/errors"

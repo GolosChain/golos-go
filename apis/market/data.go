@@ -1,7 +1,7 @@
 package market
 
 import (
-	"github.com/asuleymanov/golos/types"
+	"github.com/GolosChain/golos-go/types"
 )
 
 type Ticker struct {

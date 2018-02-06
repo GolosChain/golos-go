@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/asuleymanov/golos/transactions"
-	"github.com/asuleymanov/golos/types"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/types"
 )
 
 func (api *Client) Send_Trx(username string, strx []types.Operation) (*BResp, error) {

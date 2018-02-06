@@ -3,13 +3,13 @@ package client
 import (
 	"errors"
 	// RPC
-	"github.com/asuleymanov/golos/apis/database"
-	"github.com/asuleymanov/golos/apis/follow"
-	"github.com/asuleymanov/golos/apis/market"
-	"github.com/asuleymanov/golos/apis/networkbroadcast"
-	"github.com/asuleymanov/golos/transactions"
-	"github.com/asuleymanov/golos/transports"
-	"github.com/asuleymanov/golos/transports/websocket"
+	"github.com/GolosChain/golos-go/apis/database"
+	"github.com/GolosChain/golos-go/apis/follow"
+	"github.com/GolosChain/golos-go/apis/market"
+	"github.com/GolosChain/golos-go/apis/networkbroadcast"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/transports"
+	"github.com/GolosChain/golos-go/transports/websocket"
 )
 
 var Key_List = make(map[string]Keys)

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 
 	// RPC
-	"github.com/asuleymanov/golos/transports"
-	"github.com/asuleymanov/golos/internal/rpc"
-	"github.com/asuleymanov/golos/types"
+	"github.com/GolosChain/golos-go/transports"
+	"github.com/GolosChain/golos-go/internal/rpc"
+	"github.com/GolosChain/golos-go/types"
 
 	// Vendor
 	"github.com/pkg/errors"

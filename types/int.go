@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	// RPC
-	"github.com/asuleymanov/golos/encoding/transaction"
+	"github.com/GolosChain/golos-go/encoding/transaction"
 
 	// Vendor
 	"github.com/pkg/errors"
