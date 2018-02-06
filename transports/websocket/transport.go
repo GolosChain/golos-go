@@ -8,7 +8,7 @@ import (
 	"time"
 
 	// Vendor
-	"github.com/GolosChain/jsonrpc2"
+	"github.com/asuleymanov/jsonrpc2"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	tomb "gopkg.in/tomb.v2"
@@ -157,7 +157,7 @@ func NewTransport(urls []string, options ...Option) (*Transport, error) {
 	return t, nil
 }
 
-// Call implements interfaces.CallCloser.
+// Call implements transports.CallCloser.
 func (t *Transport) Call(method string, params, result interface{}) error {
 	// Limit the request context with the tomb context.
 	ctx := t.t.Context(nil)
@@ -299,7 +299,7 @@ func (t *Transport) emit(v interface{}) {
 	}
 }
 
-// Close implements interfaces.CallCloser.
+// Close implements transports.CallCloser.
 func (t *Transport) Close() error {
 	t.t.Kill(nil)
 	return t.t.Wait()

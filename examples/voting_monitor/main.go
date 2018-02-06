@@ -4,11 +4,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/GolosChain/golos-go/client"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos/client"
+	"github.com/asuleymanov/golos/types"
 )
 
-var cls = client.NewApi([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
+var cls = client.NewApi()
 
 func main() {
 	defer cls.Rpc.Close()

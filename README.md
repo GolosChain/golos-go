@@ -1,6 +1,6 @@
-# GolosChain/golos-go
+# asuleymanov/golos
 
-[![GoDoc](https://godoc.org/github.com/GolosChain/golos-go?status.svg)](https://godoc.org/github.com/GolosChain/golos-go)
+[![GoDoc](https://godoc.org/github.com/asuleymanov/golos?status.svg)](https://godoc.org/github.com/asuleymanov/golos)
 
 Golang RPC client library for [Golos](https://golos.io).
 
@@ -11,7 +11,7 @@ Golang RPC client library for [Golos](https://golos.io).
 ## Usage
 
 ```go
-import "github.com/GolosChain/golos-go/client"
+import "github.com/asuleymanov/golos/client"
 ```
 
 
@@ -82,7 +82,7 @@ You need to create a `Client` object to be able to do anything.
 Then you just need to call `NewApi()`.
 
 Once you create a `Client` object, you can start calling the methods exported
-via `golosd`'s RPC endpoint by invoking associated methods on the client object.
+via `golosd(steemd)`'s RPC endpoint by invoking associated methods on the client object.
 There are multiple APIs that can be exported, e.g. `database_api` and `login_api`,
 so the methods on the Client object are also namespaced accoding to these APIs.
 For example, to call `get_block` from `database_api`, you need to use

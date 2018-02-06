@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 
 	// RPC
-	"github.com/GolosChain/golos-go/interfaces"
-	"github.com/GolosChain/golos-go/internal/rpc"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos/transports"
+	"github.com/asuleymanov/golos/internal/rpc"
+	"github.com/asuleymanov/golos/types"
 
 	// Vendor
 	"github.com/pkg/errors"
@@ -17,10 +17,10 @@ const APIID = "network_broadcast_api"
 
 type API struct {
 	id     int
-	caller interfaces.Caller
+	caller transports.Caller
 }
 
-func NewAPI(caller interfaces.Caller) (*API, error) {
+func NewAPI(caller transports.Caller) (*API, error) {
 	id, err := rpc.GetNumericAPIID(caller, APIID)
 	if err != nil {
 		return nil, err

@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 
 	// RPC
-	"github.com/GolosChain/golos-go/interfaces"
+	"github.com/asuleymanov/golos/transports"
 
 	// Vendor
 	"github.com/pkg/errors"
 )
 
-func GetNumericAPIID(caller interfaces.Caller, apiName string) (int, error) {
+func GetNumericAPIID(caller transports.Caller, apiName string) (int, error) {
 	params := []interface{}{apiName}
 	var resp json.RawMessage
 	if err := caller.Call("call", []interface{}{1, "get_api_by_name", params}, &resp); err != nil {

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	// RPC
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos/types"
 )
 
 type DiscussionQuery struct {
