@@ -5,7 +5,7 @@ import (
 	"github.com/GolosChain/golos-go/types"
 )
 
-func (api *Client) Send_Trx(username string, strx []types.Operation) (*BResp, error) {
+func (api *Client) SendTrx(username string, strx []types.Operation) (*BResp, error) {
 	// Получение необходимых параметров
 	props, err := api.Database.GetDynamicGlobalProperties()
 	if err != nil {
@@ -28,7 +28,7 @@ func (api *Client) Send_Trx(username string, strx []types.Operation) (*BResp, er
 	}
 
 	// Получаем необходимый для подписи ключ
-	privKeys := api.Signing_Keys(username, strx[0])
+	privKeys := api.SigningKeys(username, strx[0])
 
 	// Подписываем транзакцию
 	if err := tx.Sign(privKeys, api.Chain); err != nil {

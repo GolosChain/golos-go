@@ -14,11 +14,11 @@ type BResp struct {
 	Expired  bool
 }
 
-type PC_Options struct {
+type PCOptions struct {
 	Percent uint16
 }
 
-type PC_Vote struct {
+type PCVote struct {
 	Weight int
 }
 

@@ -1,6 +1,6 @@
 package client
 
-func (api *Client) Followers_List(username string) ([]string, error) {
+func (api *Client) FollowersList(username string) ([]string, error) {
 	var followers []string
 	fc, _ := api.Follow.GetFollowCount(username)
 	fccount := fc.FollowerCount
@@ -20,7 +20,7 @@ func (api *Client) Followers_List(username string) ([]string, error) {
 	return followers, nil
 }
 
-func (api *Client) Following_List(username string) ([]string, error) {
+func (api *Client) FollowingList(username string) ([]string, error) {
 	var following []string
 	fc, _ := api.Follow.GetFollowCount(username)
 	fccount := fc.FollowingCount

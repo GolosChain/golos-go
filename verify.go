@@ -14,7 +14,7 @@ import (
 )
 
 //We check whether there is a voter on the list of those who have already voted
-func (api *Client) Verify_Voter_Weight(author, permlink, voter string, weight int) bool {
+func (api *Client) VerifyVoterWeight(author, permlink, voter string, weight int) bool {
 	ans, err := api.Database.GetActiveVotes(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Voter: "))
@@ -29,7 +29,7 @@ func (api *Client) Verify_Voter_Weight(author, permlink, voter string, weight in
 	}
 }
 
-func (api *Client) Verify_Voter(author, permlink, voter string) bool {
+func (api *Client) VerifyVoter(author, permlink, voter string) bool {
 	ans, err := api.Database.GetActiveVotes(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Voter: "))
@@ -45,7 +45,7 @@ func (api *Client) Verify_Voter(author, permlink, voter string) bool {
 }
 
 //We check whether there are voted
-func (api *Client) Verify_Votes(author, permlink string) bool {
+func (api *Client) VerifyVotes(author, permlink string) bool {
 	ans, err := api.Database.GetActiveVotes(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Votes: "))
@@ -59,7 +59,7 @@ func (api *Client) Verify_Votes(author, permlink string) bool {
 	}
 }
 
-func (api *Client) Verify_Comments(author, permlink string) bool {
+func (api *Client) VerifyComments(author, permlink string) bool {
 	ans, err := api.Database.GetContentReplies(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Comments: "))
@@ -73,7 +73,7 @@ func (api *Client) Verify_Comments(author, permlink string) bool {
 	}
 }
 
-func (api *Client) Verify_Reblogs(author, permlink, rebloger string) bool {
+func (api *Client) VerifyReblogs(author, permlink, rebloger string) bool {
 	ans, err := api.Follow.GetRebloggedBy(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Reblogs: "))
@@ -88,7 +88,7 @@ func (api *Client) Verify_Reblogs(author, permlink, rebloger string) bool {
 	}
 }
 
-func (api *Client) Verify_Follow(follower, following string) bool {
+func (api *Client) VerifyFollow(follower, following string) bool {
 	ans, err := api.Follow.GetFollowing(follower, following, "blog", 1)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Follow: "))
@@ -105,7 +105,7 @@ func (api *Client) Verify_Follow(follower, following string) bool {
 	}
 }
 
-func (api *Client) Verify_Post(author, permlink string) bool {
+func (api *Client) VerifyPost(author, permlink string) bool {
 	ans, err := api.Database.GetContent(author, permlink)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Post: "))
@@ -120,7 +120,7 @@ func (api *Client) Verify_Post(author, permlink string) bool {
 	}
 }
 
-func (api *Client) Verify_Delegate_Posting_Key_Sign(from_user, to_user string) bool {
+func (api *Client) VerifyDelegatePostingKeySign(from_user, to_user string) bool {
 	acc, err := api.Database.GetAccounts([]string{from_user})
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify Delegate Vote Sign: "))
@@ -140,7 +140,7 @@ func (api *Client) Verify_Delegate_Posting_Key_Sign(from_user, to_user string) b
 	}
 }
 
-func (api *Client) Verify_First_Post(username string) bool {
+func (api *Client) VerifyFirstPost(username string) bool {
 	d := time.Now()
 	cont, err := api.Database.GetDiscussionsByAuthorBeforeDate(username, "", d.Format("2006-01-02T00:00:00"), 100)
 	if err != nil {
@@ -156,7 +156,7 @@ func (api *Client) Verify_First_Post(username string) bool {
 	}
 }
 
-func (api *Client) Verify_User(username string) bool {
+func (api *Client) VerifyUser(username string) bool {
 	acc, err := api.Database.GetAccounts([]string{username})
 	if err != nil {
 		log.Println(errors.Wrapf(err, "Error Verify User: "))
@@ -168,7 +168,7 @@ func (api *Client) Verify_User(username string) bool {
 	}
 }
 
-func (api *Client) Verify_Trx(username string, strx types.Operation) (bool, error) {
+func (api *Client) VerifyTrx(username string, strx types.Operation) (bool, error) {
 	// Получение необходимых параметров
 	props, err := api.Database.GetDynamicGlobalProperties()
 	if err != nil {
@@ -189,7 +189,7 @@ func (api *Client) Verify_Trx(username string, strx types.Operation) (bool, erro
 	tx.PushOperation(strx)
 
 	// Получаем необходимый для подписи ключ
-	privKeys := api.Signing_Keys(username, strx)
+	privKeys := api.SigningKeys(username, strx)
 
 	// Подписываем транзакцию
 	if err := tx.Sign(privKeys, api.Chain); err != nil {

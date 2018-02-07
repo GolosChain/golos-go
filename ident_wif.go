@@ -73,7 +73,7 @@ func init() {
 
 }
 
-func (api *Client) Signing_Keys(username string, trx types.Operation) [][]byte {
+func (api *Client) SigningKeys(username string, trx types.Operation) [][]byte {
 	var keys [][]byte
 	if _, ok := Key_List[username]; ok {
 		op_keys := OpTypeKey[trx.Type()]

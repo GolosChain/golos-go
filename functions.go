@@ -19,39 +19,39 @@ import (
 
 const fdt = `"20060102t150405"`
 
-func (api *Client) Vote(user_name, author_name, permlink string, weight int) error {
+func (api *Client) Vote(username, authorname, permlink string, weight int) error {
 	if weight > 10000 {
 		weight = 10000
 	}
-	if api.Verify_Voter_Weight(author_name, permlink, user_name, weight) {
+	if api.VerifyVoterWeight(authorname, permlink, username, weight) {
 		return errors.New("The voter is on the list")
 	}
 
 	var trx []types.Operation
 
 	tx := &types.VoteOperation{
-		Voter:    user_name,
-		Author:   author_name,
+		Voter:    username,
+		Author:   authorname,
 		Permlink: permlink,
 		Weight:   types.Int16(weight),
 	}
 	trx = append(trx, tx)
 
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Vote: ")
 	} else {
-		log.Println("[Vote] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[Vote] Block -> ", resp.BlockNum, " User -> ", username)
 		return nil
 	}
 }
 
-func (api *Client) Multi_Vote(username, author, permlink string, arrvote []ArrVote) error {
+func (api *Client) MultiVote(username, author, permlink string, arrvote []ArrVote) error {
 	var trx []types.Operation
 	var arrvotes []ArrVote
 
 	for _, v := range arrvote {
-		if api.Verify_Delegate_Posting_Key_Sign(v.User, username) && !api.Verify_Voter(author, permlink, v.User) {
+		if api.VerifyDelegatePostingKeySign(v.User, username) && !api.VerifyVoter(author, permlink, v.User) {
 			arrvotes = append(arrvotes, v)
 		}
 	}
@@ -70,7 +70,7 @@ func (api *Client) Multi_Vote(username, author, permlink string, arrvote []ArrVo
 		trx = append(trx, txt)
 	}
 
-	resp, err := api.Send_Trx(username, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Multi_Vote: ")
 	} else {
@@ -79,17 +79,17 @@ func (api *Client) Multi_Vote(username, author, permlink string, arrvote []ArrVo
 	}
 }
 
-func (api *Client) Comment(user_name, author_name, ppermlink, body string, v *PC_Vote, o *PC_Options) error {
+func (api *Client) Comment(username, authorname, ppermlink, body string, v *PCVote, o *PCOptions) error {
 	var trx []types.Operation
 
 	times, _ := strconv.Unquote(time.Now().Add(30 * time.Second).UTC().Format(fdt))
-	permlink := "re-" + author_name + "-" + ppermlink + "-" + times
+	permlink := "re-" + authorname + "-" + ppermlink + "-" + times
 	permlink = strings.Replace(permlink, ".", "-", -1)
 
 	tx := &types.CommentOperation{
-		ParentAuthor:   author_name,
+		ParentAuthor:   authorname,
 		ParentPermlink: ppermlink,
-		Author:         user_name,
+		Author:         username,
 		Permlink:       permlink,
 		Title:          "",
 		Body:           body,
@@ -111,7 +111,7 @@ func (api *Client) Comment(user_name, author_name, ppermlink, body string, v *PC
 		}
 
 		txo := &types.CommentOptionsOperation{
-			Author:               user_name,
+			Author:               username,
 			Permlink:             permlink,
 			MaxAcceptedPayout:    MAP,
 			PercentSteemDollars:  PSD,
@@ -124,34 +124,34 @@ func (api *Client) Comment(user_name, author_name, ppermlink, body string, v *PC
 
 	if v != nil && v.Weight != 0 {
 		txv := &types.VoteOperation{
-			Voter:    user_name,
-			Author:   user_name,
+			Voter:    username,
+			Author:   username,
 			Permlink: permlink,
 			Weight:   types.Int16(v.Weight),
 		}
 		trx = append(trx, txv)
 	}
 
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Comment : ")
 	} else {
-		log.Println("[Comment] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[Comment] Block -> ", resp.BlockNum, " User -> ", username)
 		return nil
 	}
 }
 
-func (api *Client) Comment_Link(user_name, author_name, ppermlink, body string, v *PC_Vote, o *PC_Options) (string, error) {
+func (api *Client) CommentLink(username, authorname, ppermlink, body string, v *PCVote, o *PCOptions) (string, error) {
 	var trx []types.Operation
 
 	times, _ := strconv.Unquote(time.Now().Add(30 * time.Second).UTC().Format(fdt))
-	permlink := "re-" + author_name + "-" + ppermlink + "-" + times
+	permlink := "re-" + authorname + "-" + ppermlink + "-" + times
 	permlink = strings.Replace(permlink, ".", "-", -1)
 
 	tx := &types.CommentOperation{
-		ParentAuthor:   author_name,
+		ParentAuthor:   authorname,
 		ParentPermlink: ppermlink,
-		Author:         user_name,
+		Author:         username,
 		Permlink:       permlink,
 		Title:          "",
 		Body:           body,
@@ -173,7 +173,7 @@ func (api *Client) Comment_Link(user_name, author_name, ppermlink, body string, 
 		}
 
 		txo := &types.CommentOptionsOperation{
-			Author:               user_name,
+			Author:               username,
 			Permlink:             permlink,
 			MaxAcceptedPayout:    MAP,
 			PercentSteemDollars:  PSD,
@@ -186,48 +186,48 @@ func (api *Client) Comment_Link(user_name, author_name, ppermlink, body string, 
 
 	if v != nil && v.Weight != 0 {
 		txv := &types.VoteOperation{
-			Voter:    user_name,
-			Author:   user_name,
+			Voter:    username,
+			Author:   username,
 			Permlink: permlink,
 			Weight:   types.Int16(v.Weight),
 		}
 		trx = append(trx, txv)
 	}
 
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return "", errors.Wrapf(err, "Error Comment : ")
 	} else {
-		log.Println("[Comment] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[Comment] Block -> ", resp.BlockNum, " User -> ", username)
 		return permlink, nil
 	}
 }
 
-func (api *Client) DeleteComment(author_name, permlink string) error {
-	if api.Verify_Votes(author_name, permlink) {
+func (api *Client) DeleteComment(authorname, permlink string) error {
+	if api.VerifyVotes(authorname, permlink) {
 		return errors.New("You can not delete already there are voted")
 	}
-	if api.Verify_Comments(author_name, permlink) {
+	if api.VerifyComments(authorname, permlink) {
 		return errors.New("You can not delete already have comments")
 	}
 	var trx []types.Operation
 
 	tx := &types.DeleteCommentOperation{
-		Author:   author_name,
+		Author:   authorname,
 		Permlink: permlink,
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(author_name, trx)
+	resp, err := api.SendTrx(authorname, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Delete Comment: ")
 	} else {
-		log.Println("[Delete Comment] Block -> ", resp.BlockNum, " User -> ", author_name)
+		log.Println("[Delete Comment] Block -> ", resp.BlockNum, " User -> ", authorname)
 		return nil
 	}
 }
 
-func (api *Client) Post(author_name, title, body, permlink, ptag, post_image string, tags []string, v *PC_Vote, o *PC_Options) error {
+func (api *Client) Post(authorname, title, body, permlink, ptag, post_image string, tags []string, v *PCVote, o *PCOptions) error {
 	if permlink == "" {
 		permlink = translit.EncodeTitle(title)
 	} else {
@@ -257,7 +257,7 @@ func (api *Client) Post(author_name, title, body, permlink, ptag, post_image str
 	txp := &types.CommentOperation{
 		ParentAuthor:   "",
 		ParentPermlink: ptag,
-		Author:         author_name,
+		Author:         authorname,
 		Permlink:       permlink,
 		Title:          title,
 		Body:           body,
@@ -279,7 +279,7 @@ func (api *Client) Post(author_name, title, body, permlink, ptag, post_image str
 		}
 
 		txo := &types.CommentOptionsOperation{
-			Author:               author_name,
+			Author:               authorname,
 			Permlink:             permlink,
 			MaxAcceptedPayout:    MAP,
 			PercentSteemDollars:  PSD,
@@ -292,19 +292,19 @@ func (api *Client) Post(author_name, title, body, permlink, ptag, post_image str
 
 	if v != nil && v.Weight != 0 {
 		txv := &types.VoteOperation{
-			Voter:    author_name,
-			Author:   author_name,
+			Voter:    authorname,
+			Author:   authorname,
 			Permlink: permlink,
 			Weight:   types.Int16(v.Weight),
 		}
 		trx = append(trx, txv)
 	}
 
-	resp, err := api.Send_Trx(author_name, trx)
+	resp, err := api.SendTrx(authorname, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Post : ")
 	} else {
-		log.Println("[Post] Block -> ", resp.BlockNum, " User -> ", author_name)
+		log.Println("[Post] Block -> ", resp.BlockNum, " User -> ", authorname)
 		return nil
 	}
 }
@@ -321,7 +321,7 @@ func (api *Client) Follows(follower, following string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(follower, trx)
+	resp, err := api.SendTrx(follower, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Follow: ")
 	} else {
@@ -342,7 +342,7 @@ func (api *Client) Unfollow(follower, following string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(follower, trx)
+	resp, err := api.SendTrx(follower, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Unfollow: ")
 	} else {
@@ -363,7 +363,7 @@ func (api *Client) Ignore(follower, following string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(follower, trx)
+	resp, err := api.SendTrx(follower, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Ignore: ")
 	} else {
@@ -384,7 +384,7 @@ func (api *Client) Notice(follower, following string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(follower, trx)
+	resp, err := api.SendTrx(follower, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Notice: ")
 	} else {
@@ -393,63 +393,63 @@ func (api *Client) Notice(follower, following string) error {
 	}
 }
 
-func (api *Client) Reblog(user_name, author_name, permlink string) error {
-	if api.Verify_Reblogs(author_name, permlink, user_name) {
+func (api *Client) Reblog(username, authorname, permlink string) error {
+	if api.VerifyReblogs(authorname, permlink, username) {
 		return errors.New("The user already did repost")
 	}
-	json_string := "[\"reblog\",{\"account\":\"" + user_name + "\",\"author\":\"" + author_name + "\",\"permlink\":\"" + permlink + "\"}]"
+	json_string := "[\"reblog\",{\"account\":\"" + username + "\",\"author\":\"" + authorname + "\",\"permlink\":\"" + permlink + "\"}]"
 	var trx []types.Operation
 
 	tx := &types.CustomJSONOperation{
 		RequiredAuths:        []string{},
-		RequiredPostingAuths: []string{user_name},
+		RequiredPostingAuths: []string{username},
 		ID:                   "follow",
 		JSON:                 json_string,
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Reblog: ")
 	} else {
-		log.Println("[Reblog] Block -> ", resp.BlockNum, " Reblog user -> ", user_name, " Rebloging -> ", author_name, "/", permlink)
+		log.Println("[Reblog] Block -> ", resp.BlockNum, " Reblog user -> ", username, " Rebloging -> ", authorname, "/", permlink)
 		return nil
 	}
 }
 
-func (api *Client) AccountWitnessVote(user_name, witness_name string, approv bool) error {
+func (api *Client) AccountWitnessVote(username, witness_name string, approv bool) error {
 	var trx []types.Operation
 
 	tx := &types.AccountWitnessVoteOperation{
-		Account: user_name,
+		Account: username,
 		Witness: witness_name,
 		Approve: approv,
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error AccountWitnessVote: ")
 	} else {
-		log.Println("[AccountWitnessVote] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[AccountWitnessVote] Block -> ", resp.BlockNum, " User -> ", username)
 		return nil
 	}
 }
 
-func (api *Client) AccountWitnessProxy(user_name, proxy string) error {
+func (api *Client) AccountWitnessProxy(username, proxy string) error {
 	var trx []types.Operation
 
 	tx := &types.AccountWitnessProxyOperation{
-		Account: user_name,
+		Account: username,
 		Proxy:   proxy,
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(user_name, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error AccountWitnessProxy: ")
 	} else {
-		log.Println("[AccountWitnessProxy] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[AccountWitnessProxy] Block -> ", resp.BlockNum, " User -> ", username)
 		return nil
 	}
 }
@@ -465,7 +465,7 @@ func (api *Client) Transfer(from_name, to_name, memo, ammount string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(from_name, trx)
+	resp, err := api.SendTrx(from_name, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Transfer: ")
 	} else {
@@ -474,7 +474,7 @@ func (api *Client) Transfer(from_name, to_name, memo, ammount string) error {
 	}
 }
 
-func (api *Client) Multi_Transfer(username string, arrtrans []ArrTransfer) error {
+func (api *Client) MultiTransfer(username string, arrtrans []ArrTransfer) error {
 	var trx []types.Operation
 
 	for _, val := range arrtrans {
@@ -487,7 +487,7 @@ func (api *Client) Multi_Transfer(username string, arrtrans []ArrTransfer) error
 		trx = append(trx, txt)
 	}
 
-	resp, err := api.Send_Trx(username, trx)
+	resp, err := api.SendTrx(username, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Multi_Transfer: ")
 	} else {
@@ -496,12 +496,12 @@ func (api *Client) Multi_Transfer(username string, arrtrans []ArrTransfer) error
 	}
 }
 
-func (api *Client) Login(user_name, key string) bool {
-	json_string := "[\"login\",{\"account\":\"" + user_name + "\",\"app\":\"golos(go-steem)\"}]"
+func (api *Client) Login(username, key string) bool {
+	json_string := "[\"login\",{\"account\":\"" + username + "\",\"app\":\"golos(go-steem)\"}]"
 
 	strx := &types.CustomJSONOperation{
 		RequiredAuths:        []string{},
-		RequiredPostingAuths: []string{user_name},
+		RequiredPostingAuths: []string{username},
 		ID:                   "login",
 		JSON:                 json_string,
 	}
@@ -540,7 +540,7 @@ func (api *Client) Login(user_name, key string) bool {
 	if err != nil {
 		return false
 	} else {
-		log.Println("[Login] Block -> ", resp.BlockNum, " User -> ", user_name)
+		log.Println("[Login] Block -> ", resp.BlockNum, " User -> ", username)
 		return true
 	}
 }
@@ -554,7 +554,7 @@ func (api *Client) LimitOrderCancel(owner string, orderid uint32) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(owner, trx)
+	resp, err := api.SendTrx(owner, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error LimitOrderCancel: ")
 	} else {
@@ -579,7 +579,7 @@ func (api *Client) LimitOrderCreate(owner, sell, buy string, orderid uint32) err
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(owner, trx)
+	resp, err := api.SendTrx(owner, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error LimitOrderCreate: ")
 	} else {
@@ -598,7 +598,7 @@ func (api *Client) Convert(owner, amount string, requestid uint32) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(owner, trx)
+	resp, err := api.SendTrx(owner, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error Convert: ")
 	} else {
@@ -617,7 +617,7 @@ func (api *Client) TransferToVesting(from, to, amount string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(from, trx)
+	resp, err := api.SendTrx(from, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error TransferToVesting: ")
 	} else {
@@ -635,7 +635,7 @@ func (api *Client) WithdrawVesting(account, vshares string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(account, trx)
+	resp, err := api.SendTrx(account, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error WithdrawVesting: ")
 	} else {
@@ -654,7 +654,7 @@ func (api *Client) ChangeRecoveryAccount(accounttorecover, newrecoveryaccount st
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(accounttorecover, trx)
+	resp, err := api.SendTrx(accounttorecover, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error ChangeRecoveryAccount: ")
 	} else {
@@ -674,7 +674,7 @@ func (api *Client) TransferToSavings(from, to, amount, memo string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(from, trx)
+	resp, err := api.SendTrx(from, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error TransferToSavings: ")
 	} else {
@@ -695,7 +695,7 @@ func (api *Client) TransferFromSavings(from, to, amount, memo string, requestid 
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(from, trx)
+	resp, err := api.SendTrx(from, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error TransferFromSavings: ")
 	} else {
@@ -713,7 +713,7 @@ func (api *Client) CancelTransferFromSavings(from string, requestid uint32) erro
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(from, trx)
+	resp, err := api.SendTrx(from, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error CancelTransferFromSavings: ")
 	} else {
@@ -731,7 +731,7 @@ func (api *Client) DeclineVotingRights(account string, decline bool) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(account, trx)
+	resp, err := api.SendTrx(account, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error DeclineVotingRights: ")
 	} else {
@@ -752,7 +752,7 @@ func (api *Client) FeedPublish(publisher, base, quote string) error {
 	}
 
 	trx = append(trx, tx)
-	resp, err := api.Send_Trx(publisher, trx)
+	resp, err := api.SendTrx(publisher, trx)
 	if err != nil {
 		return errors.Wrapf(err, "Error FeedPublish: ")
 	} else {
