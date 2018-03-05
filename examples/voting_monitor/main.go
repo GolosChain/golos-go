@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/asuleymanov/golos-go"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go"
+	"github.com/GolosChain/golos-go/types"
 )
 
 var cls, _ = client.NewClient([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")

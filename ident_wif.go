@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/asuleymanov/golos-go/encoding/wif"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/encoding/wif"
+	"github.com/GolosChain/golos-go/types"
 )
 
 var (
