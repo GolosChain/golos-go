@@ -11,10 +11,10 @@ import (
 	"github.com/pkg/errors"
 
 	// RPC
-	"github.com/GolosChain/golos-go/encoding/wif"
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/translit"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/encoding/wif"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/translit"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 const fdt = `"20060102t150405"`
@@ -497,7 +497,7 @@ func (api *Client) MultiTransfer(username string, arrtrans []ArrTransfer) error 
 }
 
 func (api *Client) Login(username, key string) bool {
-	json_string := "[\"login\",{\"account\":\"" + username + "\",\"app\":\"golos(go-steem)\"}]"
+	json_string := "[\"login\",{\"account\":\"" + username + "\",\"app\":\"golos-go\"}]"
 
 	strx := &types.CustomJSONOperation{
 		RequiredAuths:        []string{},
@@ -757,6 +757,31 @@ func (api *Client) FeedPublish(publisher, base, quote string) error {
 		return errors.Wrapf(err, "Error FeedPublish: ")
 	} else {
 		log.Println("[FeedPublish] Block -> ", resp.BlockNum, " FeedPublish user -> ", publisher)
+		return nil
+	}
+}
+
+func (api *Client) WitnessUpdate(owner, url, blocksigningkey, accountcreationfee string, maxblocksize uint32, sbdinterestrate uint16) error {
+	var trx []types.Operation
+
+	tx := &types.WitnessUpdateOperation{
+		Owner:           owner,
+		Url:             url,
+		BlockSigningKey: blocksigningkey,
+		Props: types.ChainProperties{
+			AccountCreationFee: accountcreationfee,
+			MaximumBlockSize:   maxblocksize,
+			SBDInterestRate:    sbdinterestrate,
+		},
+		Fee: "0.000 GOLOS",
+	}
+
+	trx = append(trx, tx)
+	resp, err := api.SendTrx(owner, trx)
+	if err != nil {
+		return errors.Wrapf(err, "Error WitnessUpdate: ")
+	} else {
+		log.Println("[WitnessUpdate] Block -> ", resp.BlockNum, " WitnessUpdate user -> ", owner)
 		return nil
 	}
 }

@@ -7,20 +7,20 @@ import (
 	"log"
 
 	// RPC
-	"github.com/GolosChain/golos-go/client"
+	"github.com/asuleymanov/golos-go"
 
 	// Vendor
 	"github.com/pkg/errors"
 )
 
 var (
-	cls   = client.NewApi([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
-	voter = ""
-	key   = ""
+	cls, _ = client.NewClient([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
+	voter  = ""
+	key    = ""
 )
 
 func main() {
-	defer cls.Rpc.Close()
+	defer cls.Close()
 
 	client.Key_List[voter] = client.Keys{PKey: key}
 

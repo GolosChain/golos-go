@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 
 	// RPC
-	"github.com/GolosChain/golos-go/transports"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/transports"
+	"github.com/asuleymanov/golos-go/types"
 
 	// Vendor
 	"github.com/pkg/errors"
@@ -14,7 +14,8 @@ import (
 
 const (
 	APIID         = "database_api"
-	NumbericAPIID = 0
+	NumbericAPIID = "database_api"
+	//NumbericAPIID = 0
 )
 
 type API struct {
@@ -29,6 +30,7 @@ var EmptyParams = []string{}
 
 func (api *API) Raw(method string, params interface{}) (*json.RawMessage, error) {
 	var resp json.RawMessage
+	//if err := api.caller.Call("call", []interface{}{"database_api", method, params}, &resp); err != nil {
 	if err := api.caller.Call(method, params, &resp); err != nil {
 		return nil, errors.Wrapf(err, "golos: %v: failed to call %v\n", APIID, method)
 	}

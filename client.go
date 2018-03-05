@@ -3,13 +3,13 @@ package client
 import (
 	"errors"
 	// RPC
-	"github.com/GolosChain/golos-go/apis/database"
-	"github.com/GolosChain/golos-go/apis/follow"
-	"github.com/GolosChain/golos-go/apis/market"
-	"github.com/GolosChain/golos-go/apis/networkbroadcast"
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/transports"
-	"github.com/GolosChain/golos-go/transports/websocket"
+	"github.com/asuleymanov/golos-go/apis/database"
+	"github.com/asuleymanov/golos-go/apis/follow"
+	"github.com/asuleymanov/golos-go/apis/market"
+	"github.com/asuleymanov/golos-go/apis/networkbroadcast"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports/websocket"
 )
 
 var Key_List = make(map[string]Keys)
@@ -38,6 +38,7 @@ type Client struct {
 }
 
 // NewClient creates a new RPC client that use the given CallCloser internally.
+// Initialize only server present API. Absent API initialized as nil value.
 func NewClient(url []string, chain string) (*Client, error) {
 	call, err := initclient(url)
 	if err != nil {
@@ -47,29 +48,25 @@ func NewClient(url []string, chain string) (*Client, error) {
 
 	client.Database = database.NewAPI(client.cc)
 
-	followAPI, err := follow.NewAPI(client.cc)
+	client.Follow, err = follow.NewAPI(client.cc)
 	if err != nil {
-		return nil, err
+		client.Follow = nil
 	}
-	client.Follow = followAPI
 
-	marketAPI, err := market.NewAPI(client.cc)
+	client.Market, err = market.NewAPI(client.cc)
 	if err != nil {
-		return nil, err
+		client.Market = nil
 	}
-	client.Market = marketAPI
 
-	networkBroadcastAPI, err := networkbroadcast.NewAPI(client.cc)
+	client.NetworkBroadcast, err = networkbroadcast.NewAPI(client.cc)
 	if err != nil {
-		return nil, err
+		client.NetworkBroadcast = nil
 	}
-	client.NetworkBroadcast = networkBroadcastAPI
 
-	chainid, err := initChainId(chain)
+	client.Chain, err = initChainId(chain)
 	if err != nil {
-		return nil, err
+		client.Chain = transactions.GolosChain
 	}
-	client.Chain = chainid
 
 	return client, nil
 }
@@ -99,7 +96,7 @@ func initChainId(str string) (*transactions.Chain, error) {
 	case "test":
 		ChainId = *transactions.TestChain
 	default:
-		return nil, errors.New("test")
+		return nil, errors.New("Chain not found")
 	}
 	return &ChainId, nil
 }

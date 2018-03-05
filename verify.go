@@ -8,8 +8,8 @@ import (
 	"time"
 
 	// Vendor
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/types"
 	"github.com/pkg/errors"
 )
 
