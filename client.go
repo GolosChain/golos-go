@@ -3,20 +3,19 @@ package client
 import (
 	"errors"
 	// RPC
+	"github.com/GolosChain/golos-go/apis/account_by_key"
 	"github.com/GolosChain/golos-go/apis/database"
 	"github.com/GolosChain/golos-go/apis/follow"
-	"github.com/GolosChain/golos-go/apis/market"
-	"github.com/GolosChain/golos-go/apis/networkbroadcast"
+	"github.com/GolosChain/golos-go/apis/market_history"
+	"github.com/GolosChain/golos-go/apis/network_broadcast"
+	"github.com/GolosChain/golos-go/apis/social_network"
 	"github.com/GolosChain/golos-go/transactions"
 	"github.com/GolosChain/golos-go/transports"
 	"github.com/GolosChain/golos-go/transports/websocket"
 )
 
-var Key_List = make(map[string]Keys)
-
-// Client can be used to access Steem remote APIs.
-//
-// There is a public field for every Steem API available,
+// Client can be used to access Golos remote APIs.
+// There is a public field for every Golos API available,
 // e.g. Client.Database corresponds to database_api.
 type Client struct {
 	cc transports.CallCloser
@@ -28,13 +27,22 @@ type Client struct {
 	Follow *follow.API
 
 	// Follow represents market_history_api.
-	Market *market.API
+	MarketHistory *market_history.API
 
 	// NetworkBroadcast represents network_broadcast_api.
-	NetworkBroadcast *networkbroadcast.API
+	NetworkBroadcast *network_broadcast.API
+
+	// AccountByKey represents account_by_key.
+	AccountByKey *account_by_key.API
+
+	// SocialNetwork represents social_network.
+	SocialNetwork *social_network.API
 
 	//Chain Id
 	Chain *transactions.Chain
+
+	// Current keys for operations
+	CurrentKeys *Keys
 }
 
 // NewClient creates a new RPC client that use the given CallCloser internally.
@@ -48,22 +56,17 @@ func NewClient(url []string, chain string) (*Client, error) {
 
 	client.Database = database.NewAPI(client.cc)
 
-	client.Follow, err = follow.NewAPI(client.cc)
-	if err != nil {
-		client.Follow = nil
-	}
+	client.Follow = follow.NewAPI(client.cc)
 
-	client.Market, err = market.NewAPI(client.cc)
-	if err != nil {
-		client.Market = nil
-	}
+	client.MarketHistory = market_history.NewAPI(client.cc)
 
-	client.NetworkBroadcast, err = networkbroadcast.NewAPI(client.cc)
-	if err != nil {
-		client.NetworkBroadcast = nil
-	}
+	client.NetworkBroadcast = network_broadcast.NewAPI(client.cc)
 
-	client.Chain, err = initChainId(chain)
+	client.AccountByKey = account_by_key.NewAPI(client.cc)
+
+	client.SocialNetwork = social_network.NewAPI(client.cc)
+
+	client.Chain, err = initChainID(chain)
 	if err != nil {
 		client.Chain = transactions.GolosChain
 	}
@@ -77,6 +80,11 @@ func (client *Client) Close() error {
 	return client.cc.Close()
 }
 
+//SetKeys you can specify keys for signing transactions.
+func (client *Client) SetKeys(keys *Keys) {
+	client.CurrentKeys = keys
+}
+
 func initclient(url []string) (*websocket.Transport, error) {
 	// Инициализация Websocket
 	t, err := websocket.NewTransport(url)
@@ -87,16 +95,16 @@ func initclient(url []string) (*websocket.Transport, error) {
 	return t, nil
 }
 
-func initChainId(str string) (*transactions.Chain, error) {
-	var ChainId transactions.Chain
+func initChainID(str string) (*transactions.Chain, error) {
+	var ChainID transactions.Chain
 	// Определяем ChainId
 	switch str {
 	case "golos":
-		ChainId = *transactions.GolosChain
+		ChainID = *transactions.GolosChain
 	case "test":
-		ChainId = *transactions.TestChain
+		ChainID = *transactions.TestChain
 	default:
 		return nil, errors.New("Chain not found")
 	}
-	return &ChainId, nil
+	return &ChainID, nil
 }

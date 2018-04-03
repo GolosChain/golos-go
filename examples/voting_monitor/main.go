@@ -4,20 +4,22 @@ import (
 	"log"
 	"time"
 
-	"github.com/GolosChain/golos-go"
+	client "github.com/GolosChain/golos-go"
 	"github.com/GolosChain/golos-go/types"
 )
 
-var cls, _ = client.NewClient([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
-
 func main() {
+	cls, err := client.NewClient([]string{"wss://api.golos.cf", "wss://ws.golos.io"}, "golos")
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
 	defer cls.Close()
-	if err := run(); err != nil {
+	if err := run(cls); err != nil {
 		log.Fatalln("Error:", err)
 	}
 }
 
-func run() (err error) {
+func run(cls *client.Client) (err error) {
 	// Get config.
 	log.Println("---> GetConfig()")
 	config, err := cls.Database.GetConfig()

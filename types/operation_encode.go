@@ -4,6 +4,40 @@ import (
 	"github.com/GolosChain/golos-go/encoding/transaction"
 )
 
+// Add-on encode
+func (auth *Authority) MarshalTransaction(encoder *transaction.Encoder) error {
+	enc := transaction.NewRollingEncoder(encoder)
+	enc.EncodeNumber(uint32(auth.WeightThreshold))
+	// encode AccountAuths as map[string]uint16
+	enc.EncodeUVarint(uint64(len(auth.AccountAuths)))
+	for k, v := range auth.AccountAuths {
+		enc.EncodeString(k)
+		enc.EncodeNumber(uint16(v))
+	}
+	// encode KeyAuths as map[PubKey]uint16
+	enc.EncodeUVarint(uint64(len(auth.KeyAuths)))
+	for k, v := range auth.KeyAuths {
+		enc.EncodePubKey(k)
+		enc.EncodeNumber(uint16(v))
+	}
+	return enc.Err()
+}
+
+func (exch *ExchRate) MarshalTransaction(encoder *transaction.Encoder) error {
+	enc := transaction.NewRollingEncoder(encoder)
+	enc.EncodeMoney(exch.Base)
+	enc.EncodeMoney(exch.Quote)
+	return enc.Err()
+}
+
+func (cp *ChainProperties) MarshalTransaction(encoder *transaction.Encoder) error {
+	enc := transaction.NewRollingEncoder(encoder)
+	enc.EncodeMoney(cp.AccountCreationFee)
+	enc.Encode(cp.MaximumBlockSize)
+	enc.Encode(cp.SBDInterestRate)
+	return enc.Err()
+}
+
 // encode VoteOperation{}
 func (op *VoteOperation) MarshalTransaction(encoder *transaction.Encoder) error {
 	enc := transaction.NewRollingEncoder(encoder)
@@ -29,7 +63,7 @@ func (op *CommentOperation) MarshalTransaction(encoder *transaction.Encoder) err
 	enc.Encode(op.Permlink)
 	enc.Encode(op.Title)
 	enc.Encode(op.Body)
-	enc.Encode(op.JsonMetadata)
+	enc.Encode(op.JSONMetadata)
 	return enc.Err()
 }
 
@@ -90,8 +124,7 @@ func (op *FeedPublishOperation) MarshalTransaction(encoder *transaction.Encoder)
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeFeedPublish.Code()))
 	enc.Encode(op.Publisher)
-	enc.EncodeMoney(op.ExchangeRate.Base)
-	enc.EncodeMoney(op.ExchangeRate.Quote)
+	enc.Encode(op.ExchangeRate)
 	return enc.Err()
 }
 
@@ -106,17 +139,47 @@ func (op *ConvertOperation) MarshalTransaction(encoder *transaction.Encoder) err
 }
 
 // encode AccountCreateOperation{}
+func (op *AccountCreateOperation) MarshalTransaction(encoder *transaction.Encoder) error {
+	enc := transaction.NewRollingEncoder(encoder)
+	enc.EncodeUVarint(uint64(TypeAccountCreate.Code()))
+	enc.EncodeMoney(op.Fee)
+	enc.EncodeString(op.Creator)
+	enc.EncodeString(op.NewAccountName)
+	enc.Encode(op.Owner)
+	enc.Encode(op.Active)
+	enc.Encode(op.Posting)
+	enc.EncodePubKey(op.MemoKey)
+	enc.EncodeString(op.JSONMetadata)
+	return enc.Err()
+}
+
 // encode AccountUpdateOperation{}
+func (op *AccountUpdateOperation) MarshalTransaction(encoder *transaction.Encoder) error {
+	enc := transaction.NewRollingEncoder(encoder)
+	enc.EncodeUVarint(uint64(TypeAccountUpdate.Code()))
+	enc.EncodeString(op.Account)
+	if op.Owner != nil {
+		enc.Encode(op.Owner)
+	}
+	if op.Active != nil {
+		enc.Encode(op.Active)
+	}
+	if op.Posting != nil {
+		enc.Encode(op.Posting)
+	}
+	enc.EncodePubKey(op.MemoKey)
+	enc.EncodeString(op.JSONMetadata)
+	return enc.Err()
+}
+
 // encode WitnessUpdateOperation{}
 func (op *WitnessUpdateOperation) MarshalTransaction(encoder *transaction.Encoder) error {
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeWitnessUpdate.Code()))
 	enc.Encode(op.Owner)
-	enc.Encode(op.Url)
+	enc.Encode(op.URL)
 	enc.EncodePubKey(op.BlockSigningKey)
-	enc.EncodeMoney(op.Props.AccountCreationFee)
-	enc.Encode(op.Props.MaximumBlockSize)
-	enc.Encode(op.Props.SBDInterestRate)
+	enc.Encode(op.Props)
 	enc.EncodeMoney(op.Fee)
 	return enc.Err()
 }
@@ -214,7 +277,7 @@ func (op *TransferFromSavingsOperation) MarshalTransaction(encoder *transaction.
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeTransferFromSavings.Code()))
 	enc.Encode(op.From)
-	enc.Encode(op.RequestId)
+	enc.Encode(op.RequestID)
 	enc.Encode(op.To)
 	enc.EncodeMoney(op.Amount)
 	enc.Encode(op.Memo)
@@ -226,7 +289,7 @@ func (op *CancelTransferFromSavingsOperation) MarshalTransaction(encoder *transa
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeCancelTransferFromSavings.Code()))
 	enc.Encode(op.From)
-	enc.Encode(op.RequestId)
+	enc.Encode(op.RequestID)
 	return enc.Err()
 }
 

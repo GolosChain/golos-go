@@ -59,7 +59,7 @@ type CommentOperation struct {
 	Permlink       string `json:"permlink"`
 	Title          string `json:"title"`
 	Body           string `json:"body"`
-	JsonMetadata   string `json:"json_metadata"`
+	JSONMetadata   string `json:"json_metadata"`
 }
 
 func (op *CommentOperation) Type() OpType {
@@ -153,8 +153,8 @@ func (op *LimitOrderCancelOperation) Data() interface{} {
 
 // struct FeedPublishOperation{}
 type FeedPublishOperation struct {
-	Publisher    string   `json:"publisher"`
-	ExchangeRate ExchRate `json:"exchange_rate"`
+	Publisher    string    `json:"publisher"`
+	ExchangeRate *ExchRate `json:"exchange_rate"`
 }
 
 func (op *FeedPublishOperation) Type() OpType {
@@ -189,7 +189,7 @@ type AccountCreateOperation struct {
 	Active         *Authority `json:"active"`
 	Posting        *Authority `json:"posting"`
 	MemoKey        string     `json:"memo_key"`
-	JsonMetadata   string     `json:"json_metadata"`
+	JSONMetadata   string     `json:"json_metadata"`
 }
 
 func (op *AccountCreateOperation) Type() OpType {
@@ -207,7 +207,7 @@ type AccountUpdateOperation struct {
 	Active       *Authority `json:"active"`
 	Posting      *Authority `json:"posting"`
 	MemoKey      string     `json:"memo_key"`
-	JsonMetadata string     `json:"json_metadata"`
+	JSONMetadata string     `json:"json_metadata"`
 }
 
 func (op *AccountUpdateOperation) Type() OpType {
@@ -220,11 +220,11 @@ func (op *AccountUpdateOperation) Data() interface{} {
 
 // struct WitnessUpdateOperation{}
 type WitnessUpdateOperation struct {
-	Owner           string          `json:"owner"`
-	Url             string          `json:"url"`
-	BlockSigningKey string          `json:"block_signing_key"`
-	Props           ChainProperties `json:"props"`
-	Fee             string          `json:"fee"`
+	Owner           string           `json:"owner"`
+	URL             string           `json:"url"`
+	BlockSigningKey string           `json:"block_signing_key"`
+	Props           *ChainProperties `json:"props"`
+	Fee             string           `json:"fee"`
 }
 
 func (op *WitnessUpdateOperation) Type() OpType {
@@ -284,8 +284,8 @@ func (op *POWOperation) Data() interface{} {
 // struct CustomOperation{}
 type CustomOperation struct {
 	RequiredAuths []string `json:"required_auths"`
-	Id            uint16   `json:"id"`
-	Datas         []byte   `json:"data"`
+	ID            uint16   `json:"id"`
+	Datas         string   `json:"data"`
 }
 
 func (op *CustomOperation) Type() OpType {
@@ -361,12 +361,12 @@ func (op *SetWithdrawVestingRouteOperation) Data() interface{} {
 
 // struct LimitOrderCreate2Operation{}
 type LimitOrderCreate2Operation struct {
-	Qwner        string   `json:"owner"`
-	Orderid      uint32   `json:"orderid"`
-	AmountToSell string   `json:"amount_to_sell"`
-	ExchangeRate ExchRate `json:"exchange_rate"`
-	FillOrKill   bool     `json:"fill_or_kill"`
-	Expiration   uint32   `json:"expiration"`
+	Owner        string    `json:"owner"`
+	Orderid      uint32    `json:"orderid"`
+	AmountToSell string    `json:"amount_to_sell"`
+	ExchangeRate *ExchRate `json:"exchange_rate"`
+	FillOrKill   bool      `json:"fill_or_kill"`
+	Expiration   Time      `json:"expiration"`
 }
 
 func (op *LimitOrderCreate2Operation) Type() OpType {
@@ -459,12 +459,12 @@ type EscrowTransferOperation struct {
 	To                   string `json:"to"`
 	SbdAmount            string `json:"sbd_amount"`
 	SteemAmount          string `json:"steem_amount"`
-	EscrowId             uint32 `json:"escrow_id"`
+	EscrowID             uint32 `json:"escrow_id"`
 	Agent                string `json:"agent"`
 	Fee                  string `json:"fee"`
-	JsonMeta             string `json:"json_meta"`
-	RatificationDeadline uint32 `json:"ratification_deadline"`
-	EscrowExpiration     uint32 `json:"escrow_expiration"`
+	JSONMeta             string `json:"json_meta"`
+	RatificationDeadline Time   `json:"ratification_deadline"`
+	EscrowExpiration     Time   `json:"escrow_expiration"`
 }
 
 func (op *EscrowTransferOperation) Type() OpType {
@@ -481,7 +481,7 @@ type EscrowDisputeOperation struct {
 	To       string `json:"to"`
 	Agent    string `json:"agent"`
 	Who      string `json:"who"`
-	EscrowId uint32 `json:"escrow_id"`
+	EscrowID uint32 `json:"escrow_id"`
 }
 
 func (op *EscrowDisputeOperation) Type() OpType {
@@ -499,7 +499,7 @@ type EscrowReleaseOperation struct {
 	Agent       string `json:"agent"`
 	Who         string `json:"who"`
 	Receiver    string `json:"receiver"`
-	EscrowId    uint32 `json:"escrow_id"`
+	EscrowID    uint32 `json:"escrow_id"`
 	SbdAmount   string `json:"sbd_amount"`
 	SteemAmount string `json:"steem_amount"`
 }
@@ -532,7 +532,7 @@ type EscrowApproveOperation struct {
 	To       string `json:"to"`
 	Agent    string `json:"agent"`
 	Who      string `json:"who"`
-	EscrowId uint32 `json:"escrow_id"`
+	EscrowID uint32 `json:"escrow_id"`
 	Approve  bool   `json:"approve"`
 }
 
@@ -563,7 +563,7 @@ func (op *TransferToSavingsOperation) Data() interface{} {
 // struct TransferFromSavingsOperation{}
 type TransferFromSavingsOperation struct {
 	From      string `json:"from"`
-	RequestId uint32 `json:"request_id"`
+	RequestID uint32 `json:"request_id"`
 	To        string `json:"to"`
 	Amount    string `json:"amount"`
 	Memo      string `json:"memo"`
@@ -580,7 +580,7 @@ func (op *TransferFromSavingsOperation) Data() interface{} {
 // struct CancelTransferFromSavingsOperation{}
 type CancelTransferFromSavingsOperation struct {
 	From      string `json:"from"`
-	RequestId uint32 `json:"request_id"`
+	RequestID uint32 `json:"request_id"`
 }
 
 func (op *CancelTransferFromSavingsOperation) Type() OpType {
@@ -597,7 +597,7 @@ type CustomBinaryOperation struct {
 	RequiredActiveAuths  []string `json:"required_active_auths"`
 	RequiredPostingAuths []string `json:"required_posting_auths"`
 	RequiredAuths        []string `json:"required_auths"`
-	Id                   string   `json:"id"`
+	ID                   string   `json:"id"`
 	Datas                []byte   `json:"data"`
 }
 
@@ -694,7 +694,7 @@ type AccountCreateWithDelegationOperation struct {
 	Active         string        `json:"active"`
 	Posting        string        `json:"posting"`
 	MemoKey        string        `json:"memo_key"`
-	JsonMetadata   string        `json:"json_metadata"`
+	JSONMetadata   string        `json:"json_metadata"`
 	Extensions     []interface{} `json:"extensions"`
 }
 
@@ -850,7 +850,7 @@ type FillTransferFromSavingsOperation struct {
 	From      string `json:"from"`
 	To        string `json:"to"`
 	Amount    string `json:"amount"`
-	RequestId uint32 `json:"request_id"`
+	RequestID uint32 `json:"request_id"`
 	Memo      string `json:"memo"`
 }
 
@@ -864,7 +864,7 @@ func (op *FillTransferFromSavingsOperation) Data() interface{} {
 
 // struct HardforkOperation{}
 type HardforkOperation struct {
-	HardforkId uint32 `json:"hardfork_id"`
+	HardforkID uint32 `json:"hardfork_id"`
 }
 
 func (op *HardforkOperation) Type() OpType {

@@ -5,9 +5,10 @@ import (
 	"github.com/GolosChain/golos-go/types"
 )
 
-func (api *Client) SendTrx(username string, strx []types.Operation) (*BResp, error) {
+//SendTrx generates and sends an array of transactions to GOLOS.
+func (client *Client) SendTrx(username string, strx []types.Operation) (*BResp, error) {
 	// Получение необходимых параметров
-	props, err := api.Database.GetDynamicGlobalProperties()
+	props, err := client.Database.GetDynamicGlobalProperties()
 	if err != nil {
 		return nil, err
 	}
@@ -28,26 +29,28 @@ func (api *Client) SendTrx(username string, strx []types.Operation) (*BResp, err
 	}
 
 	// Получаем необходимый для подписи ключ
-	privKeys := api.SigningKeys(username, strx[0])
+	privKeys, err := client.SigningKeys(strx[0])
+	if err != nil {
+		return nil, err
+	}
 
 	// Подписываем транзакцию
-	if err := tx.Sign(privKeys, api.Chain); err != nil {
+	if err := tx.Sign(privKeys, client.Chain); err != nil {
 		return nil, err
 	}
 
 	// Отправка транзакции
-	resp, err := api.NetworkBroadcast.BroadcastTransactionSynchronous(tx.Transaction)
+	resp, err := client.NetworkBroadcast.BroadcastTransactionSynchronous(tx.Transaction)
 
 	if err != nil {
 		return nil, err
-	} else {
-		var bresp BResp
-
-		bresp.ID = resp.ID
-		bresp.BlockNum = resp.BlockNum
-		bresp.TrxNum = resp.TrxNum
-		bresp.Expired = resp.Expired
-
-		return &bresp, nil
 	}
+	var bresp BResp
+
+	bresp.ID = resp.ID
+	bresp.BlockNum = resp.BlockNum
+	bresp.TrxNum = resp.TrxNum
+	bresp.Expired = resp.Expired
+
+	return &bresp, nil
 }

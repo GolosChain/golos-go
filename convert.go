@@ -5,8 +5,9 @@ import (
 	"strings"
 )
 
-func (api *Client) SbdMedianPrice() (float64, error) {
-	smpreq, errsmp := api.Database.GetFeedHistory()
+//SbdMedianPrice returns the average cost of GBG when converting GOLOS.
+func (client *Client) SbdMedianPrice() (float64, error) {
+	smpreq, errsmp := client.Database.GetFeedHistory()
 	if errsmp != nil {
 		return 0, errsmp
 	}
@@ -32,8 +33,9 @@ func (api *Client) SbdMedianPrice() (float64, error) {
 	return smp, nil
 }
 
-func (api *Client) SteemPerMvest() (float64, error) {
-	dgp, errdgp := api.Database.GetDynamicGlobalProperties()
+//SteemPerMvest returns the ratio of TotalVersingFundSteem to TotalVestingShares.
+func (client *Client) SteemPerMvest() (float64, error) {
+	dgp, errdgp := client.Database.GetDynamicGlobalProperties()
 	if errdgp != nil {
 		return 0, errdgp
 	}
