@@ -3,6 +3,7 @@ package client
 import (
 	"github.com/GolosChain/golos-go/transactions"
 	"github.com/GolosChain/golos-go/types"
+	"time"
 )
 
 //SendTrx generates and sends an array of transactions to GOLOS.
@@ -33,6 +34,12 @@ func (client *Client) SendTrx(username string, strx []types.Operation) (*BResp, 
 	if err != nil {
 		return nil, err
 	}
+
+	expTime := time.Now().Add(59 * time.Minute).UTC()
+	tm := types.Time{
+		Time: &expTime,
+	}
+	tx.Expiration = &tm
 
 	// Подписываем транзакцию
 	if err := tx.Sign(privKeys, client.Chain); err != nil {

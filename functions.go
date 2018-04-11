@@ -2,6 +2,7 @@ package client
 
 import (
 	// Stdlib
+	"encoding/hex"
 	"log"
 	"strconv"
 	"strings"
@@ -80,7 +81,7 @@ func (client *Client) Comment(username, authorname, ppermlink, body string, o *P
 	permlink := "re-" + authorname + "-" + ppermlink + "-" + times
 	permlink = strings.Replace(permlink, ".", "-", -1)
 
-	jsonMeta := "{\"lib\":\"golos-go\"}"
+	jsonMeta := &types.ContentMetadata{"lib": "golos-go"}
 
 	tx := &types.CommentOperation{
 		ParentAuthor:   authorname,
@@ -115,18 +116,11 @@ func (client *Client) Post(authorname, title, body, permlink, ptag, postImage st
 		ptag = translit.EncodeTag(ptag)
 	}
 
-	jsonMeta := "{\"tags\":["
-	for k, v := range tag {
-		if k != len(tags)-1 {
-			jsonMeta = jsonMeta + "\"" + v + "\","
-		} else {
-			jsonMeta = jsonMeta + "\"" + v + "\"]"
-		}
+	jsonMeta := &types.ContentMetadata{
+		"tags":  tag,
+		"image": []string{postImage},
+		"lib":   "golos-go",
 	}
-	if postImage != "" {
-		jsonMeta = jsonMeta + ",\"image\":[\"" + postImage + "\"]"
-	}
-	jsonMeta = jsonMeta + ",\"lib\":\"golos-go\"}"
 
 	var trx []types.Operation
 	txp := &types.CommentOperation{
@@ -168,10 +162,25 @@ func (client *Client) DeleteComment(authorname, permlink string) (*OperResp, err
 	return &OperResp{NameOper: "Delete Comment/Post", Bresp: resp}, err
 }
 
-//Follows subscribe to the user
-func (client *Client) Follows(follower, following string) (*OperResp, error) {
-	jsonString := "[\"follow\",{\"follower\":\"" + follower + "\",\"following\":\"" + following + "\",\"what\":[\"blog\"]}]"
+//Follows subscribe(unsubscribe,ignore) to the user
+/*
+what:
+blog
+ignore
+empty value
+*/
+func (client *Client) Follows(follower, following, what string) (*OperResp, error) {
 	var trx []types.Operation
+	js := types.FollowOperation{
+		Follower:  follower,
+		Following: following,
+		What:      []string{what},
+	}
+
+	jsonString, errj := types.MarshalCustomJSON(js)
+	if errj != nil {
+		return nil, errj
+	}
 
 	tx := &types.CustomJSONOperation{
 		RequiredAuths:        []string{},
@@ -182,58 +191,16 @@ func (client *Client) Follows(follower, following string) (*OperResp, error) {
 
 	trx = append(trx, tx)
 	resp, err := client.SendTrx(follower, trx)
-	return &OperResp{NameOper: "Follows", Bresp: resp}, err
-}
-
-//Unfollow unsubscribe from user
-func (client *Client) Unfollow(follower, following string) (*OperResp, error) {
-	jsonString := "[\"follow\",{\"follower\":\"" + follower + "\",\"following\":\"" + following + "\",\"what\":[]}]"
-	var trx []types.Operation
-
-	tx := &types.CustomJSONOperation{
-		RequiredAuths:        []string{},
-		RequiredPostingAuths: []string{follower},
-		ID:                   "follow",
-		JSON:                 jsonString,
+	respOper := ""
+	switch what {
+	case "":
+		respOper = "Neutrality"
+	case "blog":
+		respOper = "Follows"
+	case "ignore":
+		respOper = "Ignore"
 	}
-
-	trx = append(trx, tx)
-	resp, err := client.SendTrx(follower, trx)
-	return &OperResp{NameOper: "Unfollow", Bresp: resp}, err
-}
-
-//Ignore user
-func (client *Client) Ignore(follower, following string) (*OperResp, error) {
-	jsonString := "[\"follow\",{\"follower\":\"" + follower + "\",\"following\":\"" + following + "\",\"what\":[\"ignore\"]}]"
-	var trx []types.Operation
-
-	tx := &types.CustomJSONOperation{
-		RequiredAuths:        []string{},
-		RequiredPostingAuths: []string{follower},
-		ID:                   "follow",
-		JSON:                 jsonString,
-	}
-
-	trx = append(trx, tx)
-	resp, err := client.SendTrx(follower, trx)
-	return &OperResp{NameOper: "Unfollow", Bresp: resp}, err
-}
-
-//Notice undo ignore the user
-func (client *Client) Notice(follower, following string) (*OperResp, error) {
-	jsonString := "[\"follow\",{\"follower\":\"" + follower + "\",\"following\":\"" + following + "\",\"what\":[]}]"
-	var trx []types.Operation
-
-	tx := &types.CustomJSONOperation{
-		RequiredAuths:        []string{},
-		RequiredPostingAuths: []string{follower},
-		ID:                   "follow",
-		JSON:                 jsonString,
-	}
-
-	trx = append(trx, tx)
-	resp, err := client.SendTrx(follower, trx)
-	return &OperResp{NameOper: "Notice", Bresp: resp}, err
+	return &OperResp{NameOper: respOper, Bresp: resp}, err
 }
 
 //Reblog repost records
@@ -241,7 +208,18 @@ func (client *Client) Reblog(username, authorname, permlink string) (*OperResp, 
 	if client.VerifyReblogs(authorname, permlink, username) {
 		return nil, errors.New("The user already did repost")
 	}
-	jsonString := "[\"reblog\",{\"account\":\"" + username + "\",\"author\":\"" + authorname + "\",\"permlink\":\"" + permlink + "\"}]"
+
+	js := types.ReblogOperation{
+		Account:  username,
+		Author:   authorname,
+		Permlink: permlink,
+	}
+
+	jsonString, errj := types.MarshalCustomJSON(js)
+	if errj != nil {
+		return nil, errj
+	}
+
 	var trx []types.Operation
 
 	tx := &types.CustomJSONOperation{
@@ -599,7 +577,7 @@ func (client *Client) AccountCreate(creator, newAccountName, password, fee strin
 		KeyAuths:        map[string]int64{listKeys["posting"].Public: 1},
 	}
 
-	jsonMeta := "{\"lib\":\"golos-go\"}"
+	jsonMeta := &types.AccountMetadata{}
 
 	tx := &types.AccountCreateOperation{
 		Fee:            fee,
@@ -615,4 +593,38 @@ func (client *Client) AccountCreate(creator, newAccountName, password, fee strin
 	trx = append(trx, tx)
 	resp, err := client.SendTrx(creator, trx)
 	return &OperResp{NameOper: "AccountCreate", Bresp: resp}, err
+}
+
+//SendPrivateMessage allows you to send a private message to another user.
+//Attention. I do not recommend yet to use this function, the private_message plugin is not stable.
+func (client *Client) SendPrivateMessage(from, to, message string) (*OperResp, error) {
+	var trx []types.Operation
+
+	req, _ := client.Database.GetAccounts([]string{from, to})
+
+	js := types.PrivateMessageOperation{
+		From:             from,
+		To:               to,
+		FromMemoKey:      req[0].MemoKey,
+		ToMemoKey:        req[1].MemoKey,
+		SentTime:         0,
+		Checksum:         0,
+		EncryptedMessage: hex.EncodeToString([]byte(message)),
+	}
+
+	jsonString, errj := types.MarshalCustomJSON(js)
+	if errj != nil {
+		return nil, errj
+	}
+
+	tx := &types.CustomJSONOperation{
+		RequiredAuths:        []string{},
+		RequiredPostingAuths: []string{from},
+		ID:                   "private_message",
+		JSON:                 jsonString,
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(from, trx)
+	return &OperResp{NameOper: "SendPrivateMessage", Bresp: resp}, err
 }
