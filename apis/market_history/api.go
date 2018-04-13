@@ -3,13 +3,13 @@ package market_history
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports"
 	"github.com/pkg/errors"
 )
 
 const apiID = "market_history"
 
-var emptyParams = []string{}
+var emptyParams = struct{}{}
 
 type API struct {
 	caller transports.Caller

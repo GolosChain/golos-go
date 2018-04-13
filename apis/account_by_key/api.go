@@ -3,7 +3,7 @@ package account_by_key
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +17,7 @@ func NewAPI(caller transports.Caller) *API {
 	return &API{caller}
 }
 
-var emptyParams = []string{}
+var emptyParams = struct{}{}
 
 func (api *API) raw(method string, params interface{}) (*json.RawMessage, error) {
 	var resp json.RawMessage

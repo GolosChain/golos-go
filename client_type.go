@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 //FollowersList returns the subscriber's list of subscribers
