@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	client "github.com/asuleymanov/golos-go"
-	"github.com/asuleymanov/golos-go/types"
+	client "github.com/GolosChain/golos-go"
+	"github.com/GolosChain/golos-go/types"
 )
 
 func main() {

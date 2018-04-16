@@ -3,7 +3,7 @@ package market_history
 import (
 	"encoding/json"
 
-	"github.com/asuleymanov/golos-go/transports"
+	"github.com/GolosChain/golos-go/transports"
 	"github.com/pkg/errors"
 )
 

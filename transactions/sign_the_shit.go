@@ -6,7 +6,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"github.com/asuleymanov/golos-go/rfc6979"
+	"github.com/GolosChain/golos-go/rfc6979"
 	secp256k1 "github.com/btcsuite/btcd/btcec"
 	"log"
 	"math/big"
