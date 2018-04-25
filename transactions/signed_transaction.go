@@ -10,8 +10,8 @@ import (
 	"time"
 
 	// RPC
-	"github.com/asuleymanov/golos-go/encoding/transaction"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/GolosChain/golos-go/types"
 
 	// Vendor
 	"github.com/pkg/errors"

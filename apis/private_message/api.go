@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/asuleymanov/golos-go/transports"
+	"github.com/GolosChain/golos-go/transports"
 	"github.com/pkg/errors"
 )
 

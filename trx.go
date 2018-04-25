@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/asuleymanov/golos-go/transactions"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/types"
 	"time"
 )
 
