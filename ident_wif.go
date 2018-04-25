@@ -3,8 +3,8 @@ package client
 import (
 	"github.com/pkg/errors"
 
-	"github.com/GolosChain/golos-go/encoding/wif"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/encoding/wif"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 var (

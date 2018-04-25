@@ -12,10 +12,10 @@ import (
 	"github.com/pkg/errors"
 
 	// RPC
-	"github.com/GolosChain/golos-go/encoding/wif"
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/translit"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/encoding/wif"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/translit"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 const fdt = `"20060102t150405"`

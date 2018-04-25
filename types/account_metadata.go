@@ -2,9 +2,11 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
+	"fmt"
 )
 
 type AccountMetadata struct {
@@ -34,7 +36,8 @@ func (op *AccountMetadata) UnmarshalJSON(p []byte) error {
 	}
 
 	if err := json.Unmarshal([]byte(str), &raw); err != nil {
-		return err
+		fmt.Printf("ERROR: AccountMedata unmarshal error: %s\n", err)
+		return nil
 	}
 
 	op.Profile = ProfileJSON{
@@ -81,4 +84,8 @@ func (op *AccountMetadata) MarshalTransaction(encoder *transaction.Encoder) erro
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeString(str)
 	return enc.Err()
+}
+
+func (op *AccountMetadata) String() string {
+	return fmt.Sprintf("%#v", op)
 }

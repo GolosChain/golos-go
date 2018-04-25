@@ -7,7 +7,7 @@ import (
 	"log"
 
 	// RPC
-	"github.com/GolosChain/golos-go"
+	"github.com/asuleymanov/golos-go"
 
 	// Vendor
 	"github.com/pkg/errors"

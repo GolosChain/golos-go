@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
+	"fmt"
 )
 
 type ContentMetadata map[string]interface{}
@@ -18,7 +19,8 @@ func (op *ContentMetadata) UnmarshalJSON(p []byte) error {
 	}
 
 	if err := json.Unmarshal([]byte(str), &raw); err != nil {
-		return err
+		fmt.Printf("ERROR: ContentMedata unmarshal error: %s\n", err)
+		return nil
 	}
 
 	*op = raw
