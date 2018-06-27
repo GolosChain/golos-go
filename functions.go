@@ -264,13 +264,13 @@ func (client *Client) AccountWitnessProxy(username, proxy string) (*OperResp, er
 }
 
 //Transfer of funds to any user.
-func (client *Client) Transfer(fromName, toName, memo string, ammount types.Asset) (*OperResp, error) {
+func (client *Client) Transfer(fromName, toName, memo string, amount types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.TransferOperation{
 		From:   fromName,
 		To:     toName,
-		Amount: &ammount,
+		Amount: &amount,
 		Memo:   memo,
 	}
 
@@ -287,7 +287,7 @@ func (client *Client) MultiTransfer(username string, arrtrans []ArrTransfer) (*O
 		txt := &types.TransferOperation{
 			From:   username,
 			To:     val.To,
-			Amount: &val.Ammount,
+			Amount: &val.Amount,
 			Memo:   val.Memo,
 		}
 		trx = append(trx, txt)
@@ -593,6 +593,111 @@ func (client *Client) AccountCreate(creator, newAccountName, password string, fe
 	trx = append(trx, tx)
 	resp, err := client.SendTrx(creator, trx)
 	return &OperResp{NameOper: "AccountCreate", Bresp: resp}, err
+}
+
+//AccountCreateDelegation creating a user in systems
+func (client *Client) AccountCreateDelegation(creator, newAccountName, password string, delegated, fee types.Asset) (*OperResp, error) {
+	type Keys struct {
+		Private string
+		Public  string
+	}
+
+	var trx []types.Operation
+	var listKeys = make(map[string]Keys)
+
+	empty := map[string]int64{}
+	roles := [4]string{"owner", "active", "posting", "memo"}
+
+	for _, val := range roles {
+		priv := GetPrivateKey(newAccountName, val, password)
+		pub := GetPublicKey("GLS", priv)
+		listKeys[val] = Keys{Private: priv, Public: pub}
+	}
+
+	owner := types.Authority{
+		WeightThreshold: 1,
+		AccountAuths:    empty,
+		KeyAuths:        map[string]int64{listKeys["owner"].Public: 1},
+	}
+
+	active := types.Authority{
+		WeightThreshold: 1,
+		AccountAuths:    empty,
+		KeyAuths:        map[string]int64{listKeys["active"].Public: 1},
+	}
+
+	posting := types.Authority{
+		WeightThreshold: 1,
+		AccountAuths:    empty,
+		KeyAuths:        map[string]int64{listKeys["posting"].Public: 1},
+	}
+
+	jsonMeta := &types.AccountMetadata{}
+
+	tx := &types.AccountCreateWithDelegationOperation{
+		Fee:            &fee,
+		Delegation:     &delegated,
+		Creator:        creator,
+		NewAccountName: newAccountName,
+		Owner:          &owner,
+		Active:         &active,
+		Posting:        &posting,
+		MemoKey:        listKeys["memo"].Public,
+		JSONMetadata:   jsonMeta,
+		Extensions:     []interface{}{},
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(creator, trx)
+	return &OperResp{NameOper: "AccountCreateDelegation", Bresp: resp}, err
+}
+
+func (client *Client) Delegation(from, to string, vestingshares types.Asset) (*OperResp, error) {
+	var trx []types.Operation
+
+	tx := &types.DelegateVestingSharesOperation{
+		Delegator:     from,
+		Delegatee:     to,
+		VestingShares: &vestingshares,
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(from, trx)
+	return &OperResp{NameOper: "Delegation", Bresp: resp}, err
+}
+
+func (client *Client) UpdateAccountMetadata(account string, JSONMetadata types.AccountMetadata) (*OperResp, error) {
+	var trx []types.Operation
+
+	tx := &types.AccountMetadataOperation{
+		Account:      account,
+		JSONMetadata: &JSONMetadata,
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(account, trx)
+	return &OperResp{NameOper: "UpdateAccountMetadata", Bresp: resp}, err
+}
+
+func (client *Client) ChainPropertiesUpdate(owner string, accountcreationfee types.Asset, maxblocksize uint32, sbdinterestrate, createaccountwithgolosmodifier, createaccountdelegationration, createaccountdelegationtime, mindelegationmultiplier uint16) (*OperResp, error) {
+	var trx []types.Operation
+
+	tx := &types.ChainPropertiesUpdateOperation{
+		Owner: owner,
+		Props: &types.ChainPropsUpdate{
+			AccountCreationFee:             &accountcreationfee,
+			MaximumBlockSize:               maxblocksize,
+			SBDInterestRate:                sbdinterestrate,
+			CreateAccountWithGolosModifier: createaccountwithgolosmodifier,
+			CreateAccountDelegationRation:  createaccountdelegationration,
+			CreateAccountDelegationTime:    createaccountdelegationtime,
+			MinDelegationMultiplier:        mindelegationmultiplier,
+		},
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(owner, trx)
+	return &OperResp{NameOper: "ChainPropertiesUpdate", Bresp: resp}, err
 }
 
 //SendPrivateMessage allows you to send a private message to another user.

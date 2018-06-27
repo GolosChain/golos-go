@@ -4,12 +4,16 @@ import (
 	"errors"
 	// RPC
 	"github.com/GolosChain/golos-go/apis/account_by_key"
+	"github.com/GolosChain/golos-go/apis/account_history"
 	"github.com/GolosChain/golos-go/apis/database"
 	"github.com/GolosChain/golos-go/apis/follow"
 	"github.com/GolosChain/golos-go/apis/market_history"
 	"github.com/GolosChain/golos-go/apis/network_broadcast"
+	"github.com/GolosChain/golos-go/apis/operation_history"
 	"github.com/GolosChain/golos-go/apis/private_message"
 	"github.com/GolosChain/golos-go/apis/social_network"
+	"github.com/GolosChain/golos-go/apis/tags"
+	"github.com/GolosChain/golos-go/apis/witness"
 	"github.com/GolosChain/golos-go/transactions"
 	"github.com/GolosChain/golos-go/transports"
 	"github.com/GolosChain/golos-go/transports/websocket"
@@ -42,6 +46,14 @@ type Client struct {
 	// PrivateMessage represents social_network.
 	PrivateMessage *private_message.API
 
+	Witness *witness.API
+
+	AccountHistory *account_history.API
+
+	OperationHistory *operation_history.API
+
+	Tags *tags.API
+
 	//Chain Id
 	Chain *transactions.Chain
 
@@ -52,7 +64,7 @@ type Client struct {
 // NewClient creates a new RPC client that use the given CallCloser internally.
 // Initialize only server present API. Absent API initialized as nil value.
 func NewClient(url []string, chain string) (*Client, error) {
-	call, err := initclient(url)
+	call, err := initClient(url)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +84,14 @@ func NewClient(url []string, chain string) (*Client, error) {
 
 	client.PrivateMessage = private_message.NewAPI(client.cc)
 
+	client.Witness = witness.NewAPI(client.cc)
+
+	client.AccountHistory = account_history.NewAPI(client.cc)
+
+	client.OperationHistory = operation_history.NewAPI(client.cc)
+
+	client.Tags = tags.NewAPI(client.cc)
+
 	client.Chain, err = initChainID(chain)
 	if err != nil {
 		client.Chain = transactions.GolosChain
@@ -86,7 +106,7 @@ func (client *Client) Close() error {
 	return client.cc.Close()
 }
 
-func initclient(url []string) (*websocket.Transport, error) {
+func initClient(url []string) (*websocket.Transport, error) {
 	// Инициализация Websocket
 	t, err := websocket.NewTransport(url)
 	if err != nil {

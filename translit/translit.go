@@ -20,6 +20,15 @@ func EncodeTags(tag []string) []string {
 	return arrEncTag
 }
 
+func DecodeTags(tags []string) []string {
+	arrDecTag := make([]string, 0)
+	for _, tag := range tags {
+		dec := DecodeTag(tag)
+		arrDecTag = append(arrDecTag, dec)
+	}
+	return arrDecTag
+}
+
 //EncodeTag transliteration of a tag
 func EncodeTag(tag string) string {
 	str, count := encode(tag)
@@ -29,8 +38,23 @@ func EncodeTag(tag string) string {
 	return str
 }
 
+func DecodeTag(tag string) string {
+	if len(tag) < 5 {
+		return tag
+	}
+	if tag[0:4] == "ru--" {
+		str, _ := decode(tag[4:])
+		return str
+	}
+	return tag
+}
+
 //EncodeTitle transliteration of the title
 func EncodeTitle(title string) string {
+	if title == "" {
+		return title
+	}
+
 	var str string
 	reg, err := regexp.Compile("[^a-zA-Z0-9а-яА-Я.,]+")
 	if err != nil {
@@ -48,11 +72,18 @@ func EncodeTitle(title string) string {
 	return str
 }
 
+func DecodeTitle(title string) string {
+	str, _ := decode(title)
+	return str
+}
+
 func encode(text string) (string, int) {
 	if text == "" {
 		return "", 0
 	}
 	text = strings.ToLower(text)
+	text = strings.Replace(text, "ые", "yie", -1)
+
 	var input = bytes.NewBufferString(text)
 	var output = bytes.NewBuffer(nil)
 
@@ -88,4 +119,18 @@ func encode(text string) (string, int) {
 	}
 
 	return output.String(), i
+}
+
+func decode(str string) (string, int) {
+	if str == "" {
+		return "", 0
+	}
+
+	str = strings.Replace(str, "yie", "ые", -1)
+
+	for _, trans := range decOrder {
+		str = strings.Replace(str, trans, decMap[trans], -1)
+	}
+
+	return str, len(str)
 }

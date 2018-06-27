@@ -1,6 +1,7 @@
 # GolosChain/golos-go
 
 [![GoDoc](https://godoc.org/github.com/GolosChain/golos-go?status.svg)](https://godoc.org/github.com/GolosChain/golos-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/GolosChain/golos-go)](https://goreportcard.com/report/github.com/GolosChain/golos-go)
 
 Golang RPC client library for [Golos](https://golos.io).
 
