@@ -8,7 +8,7 @@ import (
 	"time"
 
 	// Vendor
-	"github.com/GolosChain/golos-go/tomb"
+	"github.com/asuleymanov/golos-go/tomb"
 	"github.com/asuleymanov/jsonrpc2"
 	"github.com/asuleymanov/websocket"
 	"github.com/pkg/errors"

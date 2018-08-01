@@ -1,6 +1,6 @@
 package tags
 
-import "github.com/GolosChain/golos-go/types"
+import "github.com/asuleymanov/golos-go/types"
 
 type DiscussionQuery struct {
 	Tag            string   `json:"tag"`

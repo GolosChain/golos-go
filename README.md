@@ -1,18 +1,18 @@
-# GolosChain/golos-go
+# asuleymanov/golos-go
 
-[![GoDoc](https://godoc.org/github.com/GolosChain/golos-go?status.svg)](https://godoc.org/github.com/GolosChain/golos-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/GolosChain/golos-go)](https://goreportcard.com/report/github.com/GolosChain/golos-go)
+[![GoDoc](https://godoc.org/github.com/asuleymanov/golos-go?status.svg)](https://godoc.org/github.com/asuleymanov/golos-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/asuleymanov/golos-go)](https://goreportcard.com/report/github.com/asuleymanov/golos-go)
 
 Golang RPC client library for [Golos](https://golos.io).
 
 ## Compatibility
 
-`golosd 0.17.0`
+`golosd 0.18.0`
 
 ## Usage
 
 ```go
-import client "github.com/GolosChain/golos-go"
+import client "github.com/asuleymanov/golos-go"
 ```
 
 

@@ -12,10 +12,10 @@ import (
 	"github.com/pkg/errors"
 
 	// RPC
-	"github.com/GolosChain/golos-go/encoding/wif"
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/translit"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/encoding/wif"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/translit"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 const fdt = `"20060102t150405"`
@@ -90,7 +90,7 @@ func (client *Client) Comment(username, authorname, ppermlink, body string, o *P
 		Permlink:       permlink,
 		Title:          "",
 		Body:           body,
-		JSONMetadata:   jsonMeta,
+		JSONMetadata:   client.GenCommentMetadata(jsonMeta),
 	}
 	trx = append(trx, tx)
 
@@ -106,9 +106,8 @@ func (client *Client) Comment(username, authorname, ppermlink, body string, o *P
 func (client *Client) Post(authorname, title, body, permlink, ptag, postImage string, tags []string, o *PCOptions) (*OperResp, error) {
 	if permlink == "" {
 		permlink = translit.EncodeTitle(title)
-	} else {
-		permlink = translit.EncodeTitle(permlink)
-	}
+	} 
+	
 	tag := translit.EncodeTags(tags)
 	if ptag == "" {
 		ptag = translit.EncodeTag(tags[0])
@@ -130,7 +129,7 @@ func (client *Client) Post(authorname, title, body, permlink, ptag, postImage st
 		Permlink:       permlink,
 		Title:          title,
 		Body:           body,
-		JSONMetadata:   jsonMeta,
+		JSONMetadata:   client.GenCommentMetadata(jsonMeta),
 	}
 	trx = append(trx, txp)
 
@@ -264,13 +263,13 @@ func (client *Client) AccountWitnessProxy(username, proxy string) (*OperResp, er
 }
 
 //Transfer of funds to any user.
-func (client *Client) Transfer(fromName, toName, memo string, amount types.Asset) (*OperResp, error) {
+func (client *Client) Transfer(fromName, toName, memo string, amount *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.TransferOperation{
 		From:   fromName,
 		To:     toName,
-		Amount: &amount,
+		Amount: amount,
 		Memo:   memo,
 	}
 
@@ -283,12 +282,12 @@ func (client *Client) Transfer(fromName, toName, memo string, amount types.Asset
 func (client *Client) MultiTransfer(username string, arrtrans []ArrTransfer) (*OperResp, error) {
 	var trx []types.Operation
 
-	for _, val := range arrtrans {
+	for i := range arrtrans {
 		txt := &types.TransferOperation{
 			From:   username,
-			To:     val.To,
-			Amount: &val.Amount,
-			Memo:   val.Memo,
+			To:     arrtrans[i].To,
+			Amount: &arrtrans[i].Amount,
+			Memo:   arrtrans[i].Memo,
 		}
 		trx = append(trx, txt)
 	}
@@ -360,8 +359,8 @@ func (client *Client) LimitOrderCancel(owner string, orderid uint32) (*OperResp,
 	return &OperResp{NameOper: "LimitOrderCancel", Bresp: resp}, err
 }
 
-//LimitOrderCreate Creating a limit order
-func (client *Client) LimitOrderCreate(owner string, sell, buy types.Asset, orderid uint32) (*OperResp, error) {
+//LimitOrderCreate сreating a limit order
+func (client *Client) LimitOrderCreate(owner string, sell, buy *types.Asset, orderid uint32) (*OperResp, error) {
 	var trx []types.Operation
 
 	expiration := time.Now().Add(3600000 * time.Second).UTC()
@@ -370,8 +369,8 @@ func (client *Client) LimitOrderCreate(owner string, sell, buy types.Asset, orde
 	tx := &types.LimitOrderCreateOperation{
 		Owner:        owner,
 		OrderID:      orderid,
-		AmountToSell: &sell,
-		MinToReceive: &buy,
+		AmountToSell: sell,
+		MinToReceive: buy,
 		FillOrKill:   fok,
 		Expiration:   &types.Time{&expiration},
 	}
@@ -381,14 +380,38 @@ func (client *Client) LimitOrderCreate(owner string, sell, buy types.Asset, orde
 	return &OperResp{NameOper: "LimitOrderCreate", Bresp: resp}, err
 }
 
+//LimitOrderCreate сreation of a limit order based on a certain rate.
+func (client *Client) LimitOrderCreate2(owner string, sell, base, quote *types.Asset, orderid uint32) (*OperResp, error) {
+	var trx []types.Operation
+
+	expiration := time.Now().Add(3600000 * time.Second).UTC()
+	fok := false
+
+	tx := &types.LimitOrderCreate2Operation{
+		Owner:        owner,
+		OrderID:      orderid,
+		AmountToSell: sell,
+		ExchangeRate: &types.ExchRate{
+			Base:  base,
+			Quote: quote,
+		},
+		FillOrKill: fok,
+		Expiration: &types.Time{&expiration},
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(owner, trx)
+	return &OperResp{NameOper: "LimitOrderCreate2", Bresp: resp}, err
+}
+
 //Convert conversion
-func (client *Client) Convert(owner string, amount types.Asset, requestid uint32) (*OperResp, error) {
+func (client *Client) Convert(owner string, amount *types.Asset, requestid uint32) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.ConvertOperation{
 		Owner:     owner,
 		RequestID: requestid,
-		Amount:    &amount,
+		Amount:    amount,
 	}
 
 	trx = append(trx, tx)
@@ -397,13 +420,13 @@ func (client *Client) Convert(owner string, amount types.Asset, requestid uint32
 }
 
 //TransferToVesting transfer to POWER
-func (client *Client) TransferToVesting(from, to string, amount types.Asset) (*OperResp, error) {
+func (client *Client) TransferToVesting(from, to string, amount *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.TransferToVestingOperation{
 		From:   from,
 		To:     to,
-		Amount: &amount,
+		Amount: amount,
 	}
 
 	trx = append(trx, tx)
@@ -412,12 +435,12 @@ func (client *Client) TransferToVesting(from, to string, amount types.Asset) (*O
 }
 
 //WithdrawVesting down POWER
-func (client *Client) WithdrawVesting(account string, vshares types.Asset) (*OperResp, error) {
+func (client *Client) WithdrawVesting(account string, vshares *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.WithdrawVestingOperation{
 		Account:       account,
-		VestingShares: &vshares,
+		VestingShares: vshares,
 	}
 
 	trx = append(trx, tx)
@@ -441,13 +464,13 @@ func (client *Client) ChangeRecoveryAccount(accounttorecover, newrecoveryaccount
 }
 
 //TransferToSavings transfer to safe
-func (client *Client) TransferToSavings(from, to, memo string, amount types.Asset) (*OperResp, error) {
+func (client *Client) TransferToSavings(from, to, memo string, amount *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.TransferToSavingsOperation{
 		From:   from,
 		To:     to,
-		Amount: &amount,
+		Amount: amount,
 		Memo:   memo,
 	}
 
@@ -457,14 +480,14 @@ func (client *Client) TransferToSavings(from, to, memo string, amount types.Asse
 }
 
 //TransferFromSavings transfer from safe
-func (client *Client) TransferFromSavings(from, to, memo string, amount types.Asset, requestid uint32) (*OperResp, error) {
+func (client *Client) TransferFromSavings(from, to, memo string, amount *types.Asset, requestid uint32) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.TransferFromSavingsOperation{
 		From:      from,
 		RequestID: requestid,
 		To:        to,
-		Amount:    &amount,
+		Amount:    amount,
 		Memo:      memo,
 	}
 
@@ -503,14 +526,14 @@ func (client *Client) DeclineVotingRights(account string, decline bool) (*OperRe
 }
 
 //FeedPublish update course data
-func (client *Client) FeedPublish(publisher string, base, quote types.Asset) (*OperResp, error) {
+func (client *Client) FeedPublish(publisher string, base, quote *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.FeedPublishOperation{
 		Publisher: publisher,
 		ExchangeRate: &types.ExchRate{
-			Base:  &base,
-			Quote: &quote,
+			Base:  base,
+			Quote: quote,
 		},
 	}
 
@@ -520,17 +543,21 @@ func (client *Client) FeedPublish(publisher string, base, quote types.Asset) (*O
 }
 
 //WitnessUpdate updating delegate data
-func (client *Client) WitnessUpdate(owner, url, blocksigningkey string, accountcreationfee types.Asset, maxblocksize uint32, sbdinterestrate uint16) (*OperResp, error) {
+func (client *Client) WitnessUpdate(owner, url, blocksigningkey string) (*OperResp, error) {
 	var trx []types.Operation
+
+	if url == "" {
+		url = "https://golos.io/"
+	}
 
 	tx := &types.WitnessUpdateOperation{
 		Owner:           owner,
 		URL:             url,
 		BlockSigningKey: blocksigningkey,
-		Props: &types.ChainProperties{
-			AccountCreationFee: &accountcreationfee,
-			MaximumBlockSize:   maxblocksize,
-			SBDInterestRate:    sbdinterestrate,
+		Props: &types.ChainPropertiesOLD{
+			AccountCreationFee: SetAsset(0.001, "GOLOS"),
+			MaximumBlockSize:   65536,
+			SBDInterestRate:    1000,
 		},
 		Fee: SetAsset(0.000, "GOLOS"),
 	}
@@ -541,7 +568,7 @@ func (client *Client) WitnessUpdate(owner, url, blocksigningkey string, accountc
 }
 
 //AccountCreate creating a user in systems
-func (client *Client) AccountCreate(creator, newAccountName, password string, fee types.Asset) (*OperResp, error) {
+func (client *Client) AccountCreate(creator, newAccountName, password string, fee *types.Asset) (*OperResp, error) {
 	type Keys struct {
 		Private string
 		Public  string
@@ -580,7 +607,7 @@ func (client *Client) AccountCreate(creator, newAccountName, password string, fe
 	jsonMeta := &types.AccountMetadata{}
 
 	tx := &types.AccountCreateOperation{
-		Fee:            &fee,
+		Fee:            fee,
 		Creator:        creator,
 		NewAccountName: newAccountName,
 		Owner:          &owner,
@@ -595,14 +622,14 @@ func (client *Client) AccountCreate(creator, newAccountName, password string, fe
 	return &OperResp{NameOper: "AccountCreate", Bresp: resp}, err
 }
 
-//AccountCreateDelegation creating a user in systems
-func (client *Client) AccountCreateDelegation(creator, newAccountName, password string, delegated, fee types.Asset) (*OperResp, error) {
+//AccountCreateDelegation сreate a user account using delegation.
+func (client *Client) AccountCreateDelegation(creator, newAccountName, password string, delegated, fee *types.Asset) (*OperResp, error) {
 	type Keys struct {
 		Private string
 		Public  string
 	}
 
-	var trx []types.Operation
+	//var trx []types.Operation
 	var listKeys = make(map[string]Keys)
 
 	empty := map[string]int64{}
@@ -635,8 +662,8 @@ func (client *Client) AccountCreateDelegation(creator, newAccountName, password 
 	jsonMeta := &types.AccountMetadata{}
 
 	tx := &types.AccountCreateWithDelegationOperation{
-		Fee:            &fee,
-		Delegation:     &delegated,
+		Fee:            fee,
+		Delegation:     delegated,
 		Creator:        creator,
 		NewAccountName: newAccountName,
 		Owner:          &owner,
@@ -647,18 +674,22 @@ func (client *Client) AccountCreateDelegation(creator, newAccountName, password 
 		Extensions:     []interface{}{},
 	}
 
-	trx = append(trx, tx)
+	log.Println(tx)
+	return nil, nil
+
+	/*trx = append(trx, tx)
 	resp, err := client.SendTrx(creator, trx)
-	return &OperResp{NameOper: "AccountCreateDelegation", Bresp: resp}, err
+	return &OperResp{NameOper: "AccountCreateDelegation", Bresp: resp}, err*/
 }
 
-func (client *Client) Delegation(from, to string, vestingshares types.Asset) (*OperResp, error) {
+//Delegation allows you to delegate a number of GESTS to another user.
+func (client *Client) Delegation(from, to string, vestingshares *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.DelegateVestingSharesOperation{
 		Delegator:     from,
 		Delegatee:     to,
-		VestingShares: &vestingshares,
+		VestingShares: vestingshares,
 	}
 
 	trx = append(trx, tx)
@@ -666,12 +697,13 @@ func (client *Client) Delegation(from, to string, vestingshares types.Asset) (*O
 	return &OperResp{NameOper: "Delegation", Bresp: resp}, err
 }
 
-func (client *Client) UpdateAccountMetadata(account string, JSONMetadata types.AccountMetadata) (*OperResp, error) {
+//UpdateAccountMetadata allows you to change the user profile.
+func (client *Client) UpdateAccountMetadata(account string, jsonMetadata types.AccountMetadata) (*OperResp, error) {
 	var trx []types.Operation
 
 	tx := &types.AccountMetadataOperation{
 		Account:      account,
-		JSONMetadata: &JSONMetadata,
+		JSONMetadata: &jsonMetadata,
 	}
 
 	trx = append(trx, tx)
@@ -679,25 +711,89 @@ func (client *Client) UpdateAccountMetadata(account string, JSONMetadata types.A
 	return &OperResp{NameOper: "UpdateAccountMetadata", Bresp: resp}, err
 }
 
-func (client *Client) ChainPropertiesUpdate(owner string, accountcreationfee types.Asset, maxblocksize uint32, sbdinterestrate, createaccountwithgolosmodifier, createaccountdelegationration, createaccountdelegationtime, mindelegationmultiplier uint16) (*OperResp, error) {
+//ChainPropertiesUpdate allows you to set delegate parameters for the network.
+func (client *Client) ChainPropertiesUpdate(owner string, accountcreationfee *types.Asset, maxblocksize uint32, sbdinterestrate uint16, createaccountmingolosfee, createaccountmindelegation *types.Asset, createaccountdelegationtime uint32, mindelegation *types.Asset) (*OperResp, error) {
 	var trx []types.Operation
+	var props []interface{}
+
+	chp := types.ChainProperties{
+		AccountCreationFee:          accountcreationfee,
+		MaximumBlockSize:            maxblocksize,
+		SBDInterestRate:             sbdinterestrate,
+		CreateAccountMinGolosFee:    createaccountmingolosfee,
+		CreateAccountMinDelegation:  createaccountmindelegation,
+		CreateAccountDelegationTime: createaccountdelegationtime,
+		MinDelegation:               mindelegation,
+	}
+
+	props = append(props, 1)
+	props = append(props, chp)
 
 	tx := &types.ChainPropertiesUpdateOperation{
 		Owner: owner,
-		Props: &types.ChainPropsUpdate{
-			AccountCreationFee:             &accountcreationfee,
-			MaximumBlockSize:               maxblocksize,
-			SBDInterestRate:                sbdinterestrate,
-			CreateAccountWithGolosModifier: createaccountwithgolosmodifier,
-			CreateAccountDelegationRation:  createaccountdelegationration,
-			CreateAccountDelegationTime:    createaccountdelegationtime,
-			MinDelegationMultiplier:        mindelegationmultiplier,
-		},
+		Props: props,
 	}
 
 	trx = append(trx, tx)
 	resp, err := client.SendTrx(owner, trx)
 	return &OperResp{NameOper: "ChainPropertiesUpdate", Bresp: resp}, err
+}
+
+//SetWithdrawVestingRoute allows you to redirect a certain percentage of GESTS to another user when the SG is lowered.
+func (client *Client) SetWithdrawVestingRoute(from, to string, percent uint16, autovest bool) (*OperResp, error) {
+	var trx []types.Operation
+
+	tx := &types.SetWithdrawVestingRouteOperation{
+		FromAccount: from,
+		ToAccount:   to,
+		Percent:     percent,
+		AutoVest:    autovest,
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(from, trx)
+	return &OperResp{NameOper: "SetWithdrawVestingRoute", Bresp: resp}, err
+}
+
+//ProposalCreate allows you to create a list of operations and send it to the block of the sign for signing by those who are mentioned in the transactions.
+/*func (client *Client) ProposalCreate(author, title, memo string, listop []types.Operation, reviewperiod int64) (*OperResp, error) {
+	var trx []types.Operation
+	var op types.Operations
+
+	expiration := time.Now().Add(3600000 * time.Second).UTC()
+	reviewperiodtime := time.Now().Add(time.Duration(reviewperiod) * time.Minute).UTC()
+
+	op = append(op, listop...)
+
+	tx := &types.ProposalCreateOperation{
+		Author:             author,
+		Title:              title,
+		Memo:               memo,
+		ProposedOperations: op,
+		ExpirationTime:     &types.Time{&expiration},
+		ReviewPeriodTime:   &types.Time{&reviewperiodtime},
+		Extensions:         []interface{}{},
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(author, trx)
+	return &OperResp{NameOper: "ProposalCreate", Bresp: resp}, err
+}*/
+
+//ProposalDelete allows you to delete a previously created list of operations.
+func (client *Client) ProposalDelete(author, title, requester string) (*OperResp, error) {
+	var trx []types.Operation
+
+	tx := &types.ProposalDeleteOperation{
+		Author:     author,
+		Title:      title,
+		Requester:  requester,
+		Extensions: []interface{}{},
+	}
+
+	trx = append(trx, tx)
+	resp, err := client.SendTrx(author, trx)
+	return &OperResp{NameOper: "ProposalDelete", Bresp: resp}, err
 }
 
 //SendPrivateMessage allows you to send a private message to another user.

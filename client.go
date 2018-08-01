@@ -3,20 +3,21 @@ package client
 import (
 	"errors"
 	// RPC
-	"github.com/GolosChain/golos-go/apis/account_by_key"
-	"github.com/GolosChain/golos-go/apis/account_history"
-	"github.com/GolosChain/golos-go/apis/database"
-	"github.com/GolosChain/golos-go/apis/follow"
-	"github.com/GolosChain/golos-go/apis/market_history"
-	"github.com/GolosChain/golos-go/apis/network_broadcast"
-	"github.com/GolosChain/golos-go/apis/operation_history"
-	"github.com/GolosChain/golos-go/apis/private_message"
-	"github.com/GolosChain/golos-go/apis/social_network"
-	"github.com/GolosChain/golos-go/apis/tags"
-	"github.com/GolosChain/golos-go/apis/witness"
-	"github.com/GolosChain/golos-go/transactions"
-	"github.com/GolosChain/golos-go/transports"
-	"github.com/GolosChain/golos-go/transports/websocket"
+	"github.com/asuleymanov/golos-go/apis/account_by_key"
+	"github.com/asuleymanov/golos-go/apis/account_history"
+	"github.com/asuleymanov/golos-go/apis/database"
+	"github.com/asuleymanov/golos-go/apis/follow"
+	"github.com/asuleymanov/golos-go/apis/market_history"
+	"github.com/asuleymanov/golos-go/apis/network_broadcast"
+	"github.com/asuleymanov/golos-go/apis/operation_history"
+	"github.com/asuleymanov/golos-go/apis/private_message"
+	"github.com/asuleymanov/golos-go/apis/social_network"
+	"github.com/asuleymanov/golos-go/apis/tags"
+	"github.com/asuleymanov/golos-go/apis/witness"
+	"github.com/asuleymanov/golos-go/transactions"
+	"github.com/asuleymanov/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports/websocket"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 // Client can be used to access Golos remote APIs.
@@ -24,6 +25,11 @@ import (
 // e.g. Client.Database corresponds to database_api.
 type Client struct {
 	cc transports.CallCloser
+
+	AsyncProtocol bool
+
+	// Fixed JSONMetadata added to posting all comments
+	DefaultContentMetadata types.ContentMetadata
 
 	// Database represents database_api.
 	Database *database.API
@@ -63,12 +69,14 @@ type Client struct {
 
 // NewClient creates a new RPC client that use the given CallCloser internally.
 // Initialize only server present API. Absent API initialized as nil value.
-func NewClient(url []string, chain string) (*Client, error) {
-	call, err := initClient(url)
+func NewClient(url []string, chain string, options ...websocket.Option) (*Client, error) {
+	call, err := initClient(url, options...)
 	if err != nil {
 		return nil, err
 	}
 	client := &Client{cc: call}
+
+	client.AsyncProtocol = false
 
 	client.Database = database.NewAPI(client.cc)
 
@@ -106,9 +114,9 @@ func (client *Client) Close() error {
 	return client.cc.Close()
 }
 
-func initClient(url []string) (*websocket.Transport, error) {
+func initClient(url []string, options ...websocket.Option) (*websocket.Transport, error) {
 	// Инициализация Websocket
-	t, err := websocket.NewTransport(url)
+	t, err := websocket.NewTransport(url, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,15 +125,28 @@ func initClient(url []string) (*websocket.Transport, error) {
 }
 
 func initChainID(str string) (*transactions.Chain, error) {
-	var ChainID transactions.Chain
+	var chainID transactions.Chain
 	// Определяем ChainId
 	switch str {
 	case "golos":
-		ChainID = *transactions.GolosChain
+		chainID = *transactions.GolosChain
 	case "test":
-		ChainID = *transactions.TestChain
+		chainID = *transactions.TestChain
 	default:
 		return nil, errors.New("Chain not found")
 	}
-	return &ChainID, nil
+	return &chainID, nil
+}
+
+func (client *Client) GenCommentMetadata(meta *types.ContentMetadata) *types.ContentMetadata {
+	if client.DefaultContentMetadata != nil {
+		for k := range client.DefaultContentMetadata {
+			_, ok := (*meta)[k]
+			if !ok {
+				// Set fixed value only if value not exists
+				(*meta)[k] = client.DefaultContentMetadata[k]
+			}
+		}
+	}
+	return meta
 }

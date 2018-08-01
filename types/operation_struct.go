@@ -17,20 +17,20 @@ type POW struct {
 	Work      string `json:"work"`
 }
 
-type ChainProperties struct {
+type ChainPropertiesOLD struct {
 	AccountCreationFee *Asset `json:"account_creation_fee"`
 	MaximumBlockSize   uint32 `json:"maximum_block_size"`
 	SBDInterestRate    uint16 `json:"sbd_interest_rate"`
 }
 
-type ChainPropsUpdate struct {
-	AccountCreationFee             *Asset `json:"account_creation_fee"`
-	MaximumBlockSize               uint32 `json:"maximum_block_size"`
-	SBDInterestRate                uint16 `json:"sbd_interest_rate"`
-	CreateAccountWithGolosModifier uint16 `json:"create_account_with_golos_modifier"`
-	CreateAccountDelegationRation  uint16 `json:"create_account_delegation_ration"`
-	CreateAccountDelegationTime    uint16 `json:"create_account_delegation_time"`
-	MinDelegationMultiplier        uint16 `json:"min_delegation_multiplier"`
+type ChainProperties struct {
+	AccountCreationFee          *Asset `json:"account_creation_fee"`
+	MaximumBlockSize            uint32 `json:"maximum_block_size"`
+	SBDInterestRate             uint16 `json:"sbd_interest_rate"`
+	CreateAccountMinGolosFee    *Asset `json:"create_account_min_golos_fee"`
+	CreateAccountMinDelegation  *Asset `json:"create_account_min_delegation"`
+	CreateAccountDelegationTime uint32 `json:"create_account_delegation_time"`
+	MinDelegation               *Asset `json:"min_delegation"`
 }
 
 type Authority struct {
@@ -45,13 +45,13 @@ type POW2Input struct {
 	Nonce         uint64 `json:"nonce"`
 }
 
-type Beneficiarie struct {
+type Beneficiary struct {
 	Account string `json:"account"`
 	Weight  uint16 `json:"weight"`
 }
 
 type CommentPayoutBeneficiaries struct {
-	Beneficiaries []Beneficiarie `json:"beneficiaries"`
+	Beneficiaries []Beneficiary `json:"beneficiaries"`
 }
 
 // struct VoteOperation{}
@@ -239,11 +239,11 @@ func (op *AccountUpdateOperation) Data() interface{} {
 
 // struct WitnessUpdateOperation{}
 type WitnessUpdateOperation struct {
-	Owner           string           `json:"owner"`
-	URL             string           `json:"url"`
-	BlockSigningKey string           `json:"block_signing_key"`
-	Props           *ChainProperties `json:"props"`
-	Fee             *Asset           `json:"fee"`
+	Owner           string              `json:"owner"`
+	URL             string              `json:"url"`
+	BlockSigningKey string              `json:"block_signing_key"`
+	Props           *ChainPropertiesOLD `json:"props"`
+	Fee             *Asset              `json:"fee"`
 }
 
 func (op *WitnessUpdateOperation) Type() OpType {
@@ -381,7 +381,7 @@ func (op *SetWithdrawVestingRouteOperation) Data() interface{} {
 // struct LimitOrderCreate2Operation{}
 type LimitOrderCreate2Operation struct {
 	Owner        string    `json:"owner"`
-	Orderid      uint32    `json:"orderid"`
+	OrderID      uint32    `json:"orderid"`
 	AmountToSell *Asset    `json:"amount_to_sell"`
 	ExchangeRate *ExchRate `json:"exchange_rate"`
 	FillOrKill   bool      `json:"fill_or_kill"`
@@ -725,13 +725,13 @@ func (op *AccountMetadataOperation) Data() interface{} {
 
 // struct ProposalCreateOperation{}
 type ProposalCreateOperation struct {
-	Author             string        `json:"author"`
-	Title              string        `json:"title"`
-	Memo               string        `json:"memo"`
-	ProposedOperations []string      `json:"proposed_operations"` //Подумать про реализацию
-	ExpirationTime     *Time         `json:"expiration_time"`
-	ReviewPeriodTime   *Time         `json:"review_period_time"`
-	Extensions         []interface{} `json:"extensions"`
+	Author             string              `json:"author"`
+	Title              string              `json:"title"`
+	Memo               string              `json:"memo"`
+	ProposedOperations []ProposalOperation `json:"proposed_operations"`
+	ExpirationTime     *Time               `json:"expiration_time"`
+	ReviewPeriodTime   *Time               `json:"review_period_time"`
+	Extensions         []interface{}       `json:"extensions"`
 }
 
 func (op *ProposalCreateOperation) Type() OpType {
@@ -783,8 +783,8 @@ func (op *ProposalDeleteOperation) Data() interface{} {
 
 // struct ChainPropertiesUpdateOperation{}
 type ChainPropertiesUpdateOperation struct {
-	Owner string            `json:"owner"`
-	Props *ChainPropsUpdate `json:"props"`
+	Owner string        `json:"owner"`
+	Props []interface{} `json:"props"`
 }
 
 func (op *ChainPropertiesUpdateOperation) Type() OpType {

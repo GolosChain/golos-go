@@ -1,14 +1,7 @@
 package client
 
 import (
-	"github.com/GolosChain/golos-go/types"
-)
-
-var (
-	//OptionsTrue variable for type PCOptions
-	OptionsTrue bool = true
-	//OptionsFalse variable for type PCOptions
-	OptionsFalse bool = false
+	"github.com/asuleymanov/golos-go/types"
 )
 
 //Keys is used as a keystroke for a specific user.
@@ -26,6 +19,7 @@ type BResp struct {
 	BlockNum uint32
 	TrxNum   uint32
 	Expired  bool
+	JSONTrx  string
 }
 
 //OperResp type is returned when the operation is performed.
@@ -41,7 +35,7 @@ type PCOptions struct {
 	Percent              uint16
 	AllowVotes           *bool
 	AllowCurationRewards *bool
-	BeneficiarieList     *[]types.Beneficiarie
+	BeneficiaryList      *[]types.Beneficiary
 }
 
 //ArrTransfer for MultiTransfer function

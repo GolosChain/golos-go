@@ -1,7 +1,7 @@
 package market_history
 
 import (
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 type Ticker struct {

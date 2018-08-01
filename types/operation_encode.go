@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
 )
 
 // Add-on encode
@@ -32,7 +32,7 @@ func (exch *ExchRate) MarshalTransaction(encoder *transaction.Encoder) error {
 	return enc.Err()
 }
 
-func (cp *ChainProperties) MarshalTransaction(encoder *transaction.Encoder) error {
+func (cp *ChainPropertiesOLD) MarshalTransaction(encoder *transaction.Encoder) error {
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.Encode(cp.AccountCreationFee)
 	enc.Encode(cp.MaximumBlockSize)
@@ -40,15 +40,15 @@ func (cp *ChainProperties) MarshalTransaction(encoder *transaction.Encoder) erro
 	return enc.Err()
 }
 
-func (cp *ChainPropsUpdate) MarshalTransaction(encoder *transaction.Encoder) error {
+func (cp *ChainProperties) MarshalTransaction(encoder *transaction.Encoder) error {
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.Encode(cp.AccountCreationFee)
 	enc.Encode(cp.MaximumBlockSize)
 	enc.Encode(cp.SBDInterestRate)
-	enc.Encode(cp.CreateAccountWithGolosModifier)
-	enc.Encode(cp.CreateAccountDelegationRation)
+	enc.Encode(cp.CreateAccountMinGolosFee)
+	enc.Encode(cp.CreateAccountMinDelegation)
 	enc.Encode(cp.CreateAccountDelegationTime)
-	enc.Encode(cp.MinDelegationMultiplier)
+	enc.Encode(cp.MinDelegation)
 	return enc.Err()
 }
 
@@ -278,7 +278,7 @@ func (op *LimitOrderCreate2Operation) MarshalTransaction(encoder *transaction.En
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeLimitOrderCreate2.Code()))
 	enc.Encode(op.Owner)
-	enc.Encode(op.Orderid)
+	enc.Encode(op.OrderID)
 	enc.Encode(op.AmountToSell)
 	enc.Encode(op.ExchangeRate)
 	enc.EncodeBool(op.FillOrKill)
@@ -503,8 +503,8 @@ func (op *ProposalCreateOperation) MarshalTransaction(encoder *transaction.Encod
 	enc.Encode(op.Author)
 	enc.Encode(op.Title)
 	enc.Encode(op.Memo)
-	enc.EncodeArrString(op.ProposedOperations)
 	enc.Encode(op.ExpirationTime)
+	enc.Encode(op.ProposedOperations)
 	enc.Encode(op.ReviewPeriodTime)
 	//enc.Encode(op.Extensions)
 	enc.Encode(byte(0))
@@ -547,7 +547,11 @@ func (op *ChainPropertiesUpdateOperation) MarshalTransaction(encoder *transactio
 	enc := transaction.NewRollingEncoder(encoder)
 	enc.EncodeUVarint(uint64(TypeChainPropertiesUpdate.Code()))
 	enc.Encode(op.Owner)
-	enc.Encode(op.Props)
+	enc.Encode(byte(1))
+	z, _ := json.Marshal(op.Props[1])
+	var d ChainProperties
+	_ = json.Unmarshal(z, &d)
+	enc.Encode(&d)
 	return enc.Err()
 }
 

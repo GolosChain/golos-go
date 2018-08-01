@@ -3,8 +3,8 @@ package account_history
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/transports"
+	"github.com/asuleymanov/golos-go/types"
 	"github.com/pkg/errors"
 )
 

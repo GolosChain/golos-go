@@ -3,7 +3,7 @@ package account_by_key
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports"
 	"github.com/pkg/errors"
 )
 

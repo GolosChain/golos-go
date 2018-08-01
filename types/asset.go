@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
 )
 
 type Asset struct {
@@ -46,7 +46,12 @@ func (op *Asset) MarshalTransaction(encoder *transaction.Encoder) error {
 }
 
 func (op *Asset) String() string {
-	ammf := strconv.FormatFloat(op.Amount, 'f', 3, 64)
+	var ammf string
+	if op.Symbol != "GESTS" {
+		ammf = strconv.FormatFloat(op.Amount, 'f', 3, 64)
+	} else {
+		ammf = strconv.FormatFloat(op.Amount, 'f', 6, 64)
+	}
 	return ammf + " " + op.Symbol
 }
 

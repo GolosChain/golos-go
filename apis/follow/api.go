@@ -3,7 +3,7 @@ package follow
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
+	"github.com/asuleymanov/golos-go/transports"
 	"github.com/pkg/errors"
 )
 

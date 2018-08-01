@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
 )
 
 type AccountMetadata struct {

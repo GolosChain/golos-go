@@ -1,15 +1,6 @@
 package transactions
 
-import (
-	// Stdlib
-	"encoding/hex"
-	"testing"
-	"time"
-
-	// RPC
-	"github.com/GolosChain/golos-go/encoding/wif"
-	"github.com/GolosChain/golos-go/types"
-)
+/*
 
 var tx *types.Transaction
 
@@ -96,3 +87,5 @@ func TestTransaction_SignAndVerify(t *testing.T) {
 		t.Error("verification failed")
 	}
 }
+
+*/

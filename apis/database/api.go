@@ -3,8 +3,8 @@ package database
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/transports"
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/transports"
+	"github.com/asuleymanov/golos-go/types"
 	"github.com/pkg/errors"
 )
 
@@ -197,7 +197,7 @@ func (api *API) GetEscrow(from string, escrowID uint32) (*json.RawMessage, error
 }
 
 //GetWithdrawRoutes api request get_withdraw_routes
-func (api *API) GetWithdrawRoutes(accountName string, withdrawRouteType string) (*json.RawMessage, error) {
+func (api *API) GetWithdrawRoutes(accountName, withdrawRouteType string) (*json.RawMessage, error) {
 	return api.raw("get_withdraw_routes", []interface{}{accountName, withdrawRouteType})
 }
 
@@ -294,8 +294,8 @@ func (api *API) GetVerifyAuthority(trx *types.Transaction) (bool, error) {
 	return resp, nil
 }
 
-func (api *API) GetProposedTransaction(account string) (*ProposalObject, error) {
-	raw, err := api.raw("get_proposed_transaction", []interface{}{account})
+func (api *API) GetProposedTransaction(account string, from, limit uint32) (*ProposalObject, error) {
+	raw, err := api.raw("get_proposed_transactions", []interface{}{account, from, limit})
 	if err != nil {
 		return nil, err
 	}
