@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/types"
 )
 
 //Keys is used as a keystroke for a specific user.

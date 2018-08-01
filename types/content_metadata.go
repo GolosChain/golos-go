@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"fmt"
-	"github.com/asuleymanov/golos-go/encoding/transaction"
+	"github.com/GolosChain/golos-go/encoding/transaction"
 )
 
 type ContentMetadata map[string]interface{}

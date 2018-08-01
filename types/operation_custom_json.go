@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	// RPC
-	"github.com/asuleymanov/golos-go/encoding/transaction"
+	"github.com/GolosChain/golos-go/encoding/transaction"
 )
 
 var (

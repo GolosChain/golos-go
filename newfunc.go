@@ -7,8 +7,8 @@ import (
 	"time"
 
 	// RPC
-	"github.com/asuleymanov/golos-go/translit"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/translit"
+	"github.com/GolosChain/golos-go/types"
 )
 
 //TYPE

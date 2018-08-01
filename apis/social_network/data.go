@@ -1,7 +1,7 @@
 package social_network
 
 import (
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/types"
 )
 
 //DiscussionQuery

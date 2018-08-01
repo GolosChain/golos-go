@@ -1,7 +1,7 @@
 package witness
 
 import (
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/types"
 )
 
 //ChainProperties

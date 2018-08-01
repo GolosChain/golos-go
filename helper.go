@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/asuleymanov/golos-go/transactions"
-	"github.com/asuleymanov/golos-go/types"
+	"github.com/GolosChain/golos-go/transactions"
+	"github.com/GolosChain/golos-go/types"
 )
 
 //SetKeys you can specify keys for signing transactions.
