@@ -1,7 +1,7 @@
 package social_network
 
 import (
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 //Votes structure for the GetAccountVotes function.

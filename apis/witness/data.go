@@ -1,7 +1,7 @@
 package witness
 
 import (
-	"github.com/GolosChain/golos-go/types"
+	"github.com/asuleymanov/golos-go/types"
 )
 
 //ChainProperties additional structure for the functions GetFeedHistory, GetWitnessSchedule, GetWitnessByAccount, GetWitnesses and GetWitnessByVote .

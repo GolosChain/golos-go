@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	// RPC
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
 )
 
 // Transaction represents a blockchain transaction.

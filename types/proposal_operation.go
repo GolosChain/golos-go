@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/json"
 
-	"github.com/GolosChain/golos-go/encoding/transaction"
+	"github.com/asuleymanov/golos-go/encoding/transaction"
 )
 
 //ProposalOperations array of values of type ProposalOperation.
